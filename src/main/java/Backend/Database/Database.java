@@ -10,23 +10,21 @@ import java.io.PrintWriter;
 import java.util.Scanner;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.security.MessageDigest;
 
 /**
  *
  * @author pola-nasser13
  */
-public abstract class Database<D extends Info> {
+public abstract class Database {
 
-    private JSONArray records;
-    private String filename;
+    protected JSONArray records;
+    protected String filename;
 
     public Database(String filename) {
         this.filename = filename;
         this.records = new JSONArray();
+        readFromFile();
     }
-
-    public abstract D createRecordFrom(JSONObject json);
 
     public void readFromFile() {
         records = new JSONArray();
@@ -50,12 +48,9 @@ public abstract class Database<D extends Info> {
             }
 
             JSONArray arr = new JSONArray(text);
+
             for (int i = 0; i < arr.length(); i++) {
-                JSONObject j = arr.getJSONObject(i);
-                D record = createRecordFrom(j);
-                if (record != null) {
-                    records.put(j);
-                }
+                records.put(arr.getJSONObject(i));
             }
 
         } catch (Exception e) {
@@ -63,7 +58,8 @@ public abstract class Database<D extends Info> {
         }
     }
 
-    public abstract void insertRecord(D record);
+    public abstract boolean insertRecord(JSONObject obj);
+
 
     public void deleteRecord(int key) {
         JSONArray newArr = new JSONArray();
@@ -91,29 +87,8 @@ public abstract class Database<D extends Info> {
     public void saveToFile() {
         try (PrintWriter pw = new PrintWriter(new FileWriter(filename))) {
             pw.write(records.toString(4));
-        } catch (Exception e) {
+        } catch (Exception e) {  
             System.out.println("Failed to save: " + filename);
-        }
-    }
-
-    protected String hashPassword(String text) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(text.getBytes("UTF-8"));
-
-            StringBuilder hex = new StringBuilder();
-            for (int i = 0; i < hash.length; i++) {
-                String h = Integer.toHexString(0xff & hash[i]);
-                if (h.length() == 1) {
-                    hex.append('0');
-                }
-                hex.append(h);
-            }
-
-            return hex.toString();
-
-        } catch (Exception e) {
-            return null;
         }
     }
 }

@@ -3,9 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Backend.Database;
-
-import Backend.Models.Course;
-import Backend.Models.Lesson;
 import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -13,36 +10,39 @@ import org.json.JSONObject;
  *
  * @author pola-nasser13
  */
-public class CourseDatabase extends Database<Course> {
+public class CourseDatabase extends Database {
 
     public CourseDatabase(String filename) {
         super(filename);
     }
 
-    @Override
-    public Course createRecordFrom(JSONObject j) {
+    public boolean insertRecord(JSONObject j) {
         try {
-            return new Course(j);
+            int newId = j.getInt("courseId");
+            for (int i = 0; i < records.length(); i++) {
+                JSONObject existing = records.getJSONObject(i);
+                if (existing.getInt("courseId") == newId) {
+                    return false;
+                }
+            }
+
+            if (!j.has("lessons")) j.put("lessons", new JSONArray());
+            if (!j.has("students")) j.put("students", new JSONArray());
+
+            records.put(j);
+            saveToFile();
+            return true;
+
         } catch (Exception e) {
-            return null;
+            System.out.println("Failed to insert course: " + e.getMessage());
+            return false;
         }
     }
 
-    @Override
-    public void insertRecord(Course course) {
-        if (course == null) return;
-        if (contains(course.getCourseId())) return;
-
-        getRecords().put(course.toJson());
-        saveToFile();
-    }
-
-    public Course getCourseById(int id) {
-        for (int i = 0; i < getRecords().length(); i++) {
-            JSONObject j = getRecords().getJSONObject(i);
-            if (j.getInt("courseId") == id) {
-                return createRecordFrom(j);
-            }
+    public JSONObject getCourseById(int courseId) {
+        for (int i = 0; i < records.length(); i++) {
+            JSONObject j = records.getJSONObject(i);
+            if (j.getInt("courseId") == courseId) return j;
         }
         return null;
     }
@@ -51,133 +51,96 @@ public class CourseDatabase extends Database<Course> {
         return getCourseById(courseId) != null;
     }
 
-    public ArrayList<Course> getAllCourses() {
-        ArrayList<Course> list = new ArrayList<>();
-
-        for (int i = 0; i < getRecords().length(); i++) {
-            Course c = createRecordFrom(getRecords().getJSONObject(i));
-            if (c != null) list.add(c);
+    public ArrayList<JSONObject> getAllCourses() {
+        ArrayList<JSONObject> list = new ArrayList<>();
+        for (int i = 0; i < records.length(); i++) {
+            list.add(records.getJSONObject(i));
         }
-
         return list;
     }
-    
-    public void updateCourse(Course course) {
-        if (course == null) return;
 
-        for (int i = 0; i < getRecords().length(); i++) {
-            JSONObject j = getRecords().getJSONObject(i);
+    public boolean updateCourse(JSONObject courseObj) {
+        try {
+            int courseId = courseObj.getInt("courseId");
 
-            if (j.getInt("courseId") == course.getCourseId()) {
-                getRecords().put(i, course.toJson());
-                saveToFile();
-                return;
+            for (int i = 0; i < records.length(); i++) {
+                JSONObject existing = records.getJSONObject(i);
+                if (existing.getInt("courseId") == courseId) {
+                    records.put(i, courseObj);
+                    saveToFile();
+                    return true;
+                }
             }
+            return false;
+        } catch (Exception e) {
+            System.out.println("Failed to update course: " + e.getMessage());
+            return false;
         }
     }
 
     public void deleteCourse(int courseId) {
-
         JSONArray newRecords = new JSONArray();
-
-        for (int i = 0; i < getRecords().length(); i++) {
-            JSONObject j = getRecords().getJSONObject(i);
+        for (int i = 0; i < records.length(); i++) {
+            JSONObject j = records.getJSONObject(i);
             if (j.getInt("courseId") != courseId) {
                 newRecords.put(j);
             }
         }
-
-        clearRecords();
-        for (int i = 0; i < newRecords.length(); i++) {
-            getRecords().put(newRecords.getJSONObject(i));
-        }
-
+        records = newRecords;
         saveToFile();
-    }
-
-    private void clearRecords() {
-        while (getRecords().length() > 0) {
-            getRecords().remove(0);
-        }
     }
 
 
     public void enrollStudent(int courseId, int studentId) {
-        for (int i = 0; i < getRecords().length(); i++) {
-            JSONObject j = getRecords().getJSONObject(i);
+        JSONObject course = getCourseById(courseId);
+        if (course == null) return;
 
-            if (j.getInt("courseId") == courseId) {
+        JSONArray students = course.optJSONArray("students");
+        if (students == null) students = new JSONArray();
 
-                JSONArray students = j.optJSONArray("students");
-                if (students == null) students = new JSONArray();
-
-                boolean exists = false;
-                for (int k = 0; k < students.length(); k++) {
-                    if (students.getInt(k) == studentId) {
-                        exists = true;
-                        break;
-                    }
-                }
-
-                if (!exists) students.put(studentId);
-
-                j.put("students", students);
-                getRecords().put(i, j);
-
-                saveToFile();
-                return;
+        boolean exists = false;
+        for (int i = 0; i < students.length(); i++) {
+            if (students.getInt(i) == studentId) {
+                exists = true;
+                break;
             }
         }
+
+        if (!exists) students.put(studentId);
+        course.put("students", students);
+        updateCourse(course);
     }
 
+    public void addLesson(int courseId, JSONObject lessonObj) {
+        JSONObject course = getCourseById(courseId);
+        if (course == null) return;
 
-    public void addLesson(int courseId, Lesson lesson) {
-        if (lesson == null) return;
+        JSONArray lessons = course.optJSONArray("lessons");
+        if (lessons == null) lessons = new JSONArray();
 
-        for (int i = 0; i < getRecords().length(); i++) {
-            JSONObject j = getRecords().getJSONObject(i);
+        lessons.put(lessonObj);
+        course.put("lessons", lessons);
 
-            if (j.getInt("courseId") == courseId) {
-
-                JSONArray lessons = j.optJSONArray("lessons");
-                if (lessons == null) lessons = new JSONArray();
-
-                lessons.put(lesson.toJson());
-
-                j.put("lessons", lessons);
-                getRecords().put(i, j);
-
-                saveToFile();
-                return;
-            }
-        }
+        updateCourse(course);
     }
+
 
     public void removeLesson(int courseId, int lessonId) {
+        JSONObject course = getCourseById(courseId);
+        if (course == null) return;
 
-        for (int i = 0; i < getRecords().length(); i++) {
-            JSONObject j = getRecords().getJSONObject(i);
+        JSONArray lessons = course.optJSONArray("lessons");
+        if (lessons == null) return;
 
-            if (j.getInt("courseId") == courseId) {
-
-                JSONArray lessons = j.optJSONArray("lessons");
-                if (lessons == null) return;
-
-                JSONArray newLessons = new JSONArray();
-
-                for (int k = 0; k < lessons.length(); k++) {
-                    JSONObject lj = lessons.getJSONObject(k);
-                    if (lj.getInt("lessonId") != lessonId) {
-                        newLessons.put(lj);
-                    }
-                }
-
-                j.put("lessons", newLessons);
-                getRecords().put(i, j);
-
-                saveToFile();
-                return;
+        JSONArray newLessons = new JSONArray();
+        for (int i = 0; i < lessons.length(); i++) {
+            JSONObject l = lessons.getJSONObject(i);
+            if (l.getInt("lessonId") != lessonId) {
+                newLessons.put(l);
             }
         }
+        course.put("lessons", newLessons);
+        updateCourse(course);
     }
 }
+
