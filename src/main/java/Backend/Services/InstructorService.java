@@ -40,7 +40,7 @@ public class InstructorService {
     }
     
    public boolean deleteCourse(Course c){
-    boolean deleteStatus = instructor.deleteCourse();
+    boolean deleteStatus = instructor.deleteCourse(c);
     if(deleteStatus){
         System.out.println("Deleted Course successfully!");
           courses.saveToFile();
@@ -59,7 +59,7 @@ public class InstructorService {
     }
    public boolean deleteLesson(Course c, String lessonId, String title, String content, ArrayList<String> optionalResources){
         Lesson l = new Lesson(lessonId, title, content, optionalResources);
-    boolean deleteStatus = c.deleteLesson(l);
+    boolean deleteStatus = c.removeLesson(l);
     if(deleteStatus){
         System.out.println("Deleted Course successfully!");
           courses.saveToFile();
@@ -68,6 +68,6 @@ public class InstructorService {
     }
     
    public ArrayList<Student> getEnrolledStudents(Course c){
-        return c.enrolledStudents;
+        return c.getStudents();
     }
 }
