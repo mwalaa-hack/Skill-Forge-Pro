@@ -7,6 +7,7 @@ package Backend.Database;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Scanner;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,19 +16,22 @@ import org.json.JSONObject;
  *
  * @author pola-nasser13
  */
-public abstract class Database {
+public abstract class Database<D extends Info> {
 
-    protected JSONArray records;
+    protected ArrayList<D> records;
     protected String filename;
 
     public Database(String filename) {
         this.filename = filename;
-        this.records = new JSONArray();
+        this.records = new ArrayList<>();
         readFromFile();
     }
 
+    public abstract D createRecordFrom(JSONObject j);
+    public abstract boolean insertRecord(JSONObject j);
+
     public void readFromFile() {
-        records = new JSONArray();
+        records.clear();
 
         try {
             File file = new File(filename);
@@ -36,58 +40,41 @@ public abstract class Database {
                 return;
             }
 
-            String text = "";
-            Scanner scanner = new Scanner(file);
-            while (scanner.hasNextLine()) {
-                text += scanner.nextLine();
-            }
-            scanner.close();
+            StringBuilder content = new StringBuilder();
+            Scanner sc = new Scanner(file);
 
-            if (text.isEmpty()) {
-                return;
-            }
+            while (sc.hasNextLine()) content.append(sc.nextLine());
+            sc.close();
 
-            JSONArray arr = new JSONArray(text);
+            if (content.length() == 0) return;
 
+            JSONArray arr = new JSONArray(content.toString());
             for (int i = 0; i < arr.length(); i++) {
-                records.put(arr.getJSONObject(i));
+                JSONObject obj = arr.getJSONObject(i);
+                D rec = createRecordFrom(obj);
+                if (rec != null) records.add(rec);
             }
 
         } catch (Exception e) {
-            System.out.println("Failed to read JSON file: " + filename);
+            System.out.println("Failed to read JSON: " + filename);
         }
     }
 
-    public abstract boolean insertRecord(JSONObject obj);
-
-
-    public void deleteRecord(int key) {
-        JSONArray newArr = new JSONArray();
-        boolean deleted = false;
-
-        for (int i = 0; i < records.length(); i++) {
-            JSONObject j = records.getJSONObject(i);
-            if (j.getInt("userId") != key) {
-                newArr.put(j);
-            } else {
-                deleted = true;
-            }
-        }
-
-        records = newArr;
-        if (deleted) {
-            saveToFile();
-        }
-    }
-
-    public JSONArray getRecords() {
+    public ArrayList<D> getRecords() {
         return records;
     }
 
     public void saveToFile() {
         try (PrintWriter pw = new PrintWriter(new FileWriter(filename))) {
-            pw.write(records.toString(4));
-        } catch (Exception e) {  
+
+            JSONArray arr = new JSONArray();
+            for (int i = 0; i < records.size(); i++) {
+                arr.put(records.get(i).toJSON());
+            }
+
+            pw.write(arr.toString(4));
+
+        } catch (Exception e) {
             System.out.println("Failed to save: " + filename);
         }
     }
