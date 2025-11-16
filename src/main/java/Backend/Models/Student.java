@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Backend.Models;
 
 import javax.swing.*;
@@ -12,87 +8,68 @@ import java.util.HashMap;
  *
  * @author Mohamed Walaa
  */
-
-
-
-
-
 public class Student extends User {
     
-    
-    private ArrayList<Integer> enrolledCourseIds = new ArrayList<>(); //id list
-
-    private HashMap<Integer, ArrayList<Integer>> progress = new HashMap<>(); //map
+    private ArrayList<Course> enrolledCourses = new ArrayList<>(); // store Course objects
+    private HashMap<Course, ArrayList<Integer>> progress = new HashMap<>(); // map course,completed lesson IDs
 
     public Student(int id, String username, String email, String passwordHash){
         super(id, username, email, passwordHash, "student");
     }
 
-
+    // Enroll in a course
     public boolean enrollCourse(Course course) {
 
-        int courseId = course.getCourseId();
-
-        if(enrolledCourseIds.contains(courseId)) {
-            System.out.println("Already enrolled in course " + courseId);
-            return false;   //already enrolled
+        if(enrolledCourses.contains(course)) {
+            System.out.println("Already enrolled in course " + course.getCourseId());
+            return false;   // already enrolled
         }
 
-        enrolledCourseIds.add(courseId);
-
-        progress.put(courseId, new ArrayList<>());
+        enrolledCourses.add(course);
+        progress.put(course, new ArrayList<>());
 
         course.enroll(this.getUserId());
 
-        System.out.println("Student " + this.getUserId() + " successfully enrolled in Course " + courseId);
+        System.out.println("Student " + this.getUserId() + " successfully enrolled in Course " + course.getCourseId());
         return true;
     }
 
+    // Mark a lesson completed
+    public boolean markLessonCompleted(Course course, int lessonId){
 
-    public boolean markLessonCompleted(int courseId, int lessonId){
-
-        if (!enrolledCourseIds.contains(courseId)) {
+        if (!enrolledCourses.contains(course)) {
             System.out.println("Student is not enrolled in this course!");
-            return false;  //student not enrolled
+            return false;  // student not enrolled
         }
 
-        ArrayList<Integer> completedLessons = progress.get(courseId);
-
+        ArrayList<Integer> completedLessons = progress.get(course);
         if (completedLessons == null) {
             completedLessons = new ArrayList<>();
-            progress.put(courseId, completedLessons);
+            progress.put(course, completedLessons);
         }
 
-        
         if (completedLessons.contains(lessonId)) {
             System.out.println("Lesson already completed.");
-            return false;   //lesson already done
+            return false;   // lesson already done
         }
 
-        //mark lesson complete
         completedLessons.add(lessonId);
-
-        System.out.println("Marked lesson " + lessonId + " completed for course " + courseId);
+        System.out.println("Marked lesson " + lessonId + " completed for course " + course.getCourseId());
         return true;
     }
 
-    
-    
-    
-    
-
-    public ArrayList<Integer> getCompletedLessons(int courseId) {
-        return progress.getOrDefault(courseId, new ArrayList<>());
+    //get completed lessons
+    public ArrayList<Integer> getCompletedLessons(Course course) {
+        return progress.getOrDefault(course, new ArrayList<>());
     }
 
-    public ArrayList<Integer> getEnrolledCourseIds() {
-        return enrolledCourseIds;
+    //get enrolled courses
+    public ArrayList<Course> getEnrolledCourses() {
+        return enrolledCourses;
     }
 
-
-    //for gui
+    // for GUI
     @Override
     public void openDashboard(JFrame parentFrame) {
     }
-    
 }
