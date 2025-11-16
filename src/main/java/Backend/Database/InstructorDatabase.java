@@ -4,6 +4,8 @@
  */
 package Backend.Database;
 import Backend.Models.*;
+import java.util.ArrayList;
+import org.json.JSONObject;
 
 /**
  *
@@ -25,53 +27,24 @@ public class InstructorDatabase extends Database<Instructor> {
         try {
             int userId = j.getInt("userId");
             String email = j.getString("email");
-
             for (int i = 0; i < records.size(); i++) {
                 Instructor ins = records.get(i);
-
-                if (ins.getUserId() == userId ||
-                    ins.getEmail().equalsIgnoreCase(email)) {
-                    return false;
-                }
+                if (ins.getUserId() == userId || ins.getEmail().equalsIgnoreCase(email)) return false;
             }
-
             Instructor newIns = createRecordFrom(j);
             records.add(newIns);
             saveToFile();
             return true;
-
         } catch (Exception e) {
             System.out.println("Failed to insert instructor: " + e.getMessage());
             return false;
         }
     }
 
-//    public void deleteInstructor(int instructorId) {
-//        boolean deleted = false;
-//
-//        for (int i = 0; i < records.size(); i++) {
-//            Instructor ins = records.get(i);
-//            if (ins.getId() == instructorId) {
-//                records.remove(i);
-//                deleted = true;
-//                i--;
-//            }
-//        }
-//
-//        if (deleted) {
-//            System.out.println("Instructor deleted: " + instructorId);
-//            saveToFile();
-//        } else {
-//            System.out.println("No instructor found with ID: " + instructorId);
-//        }
-//    }
-    
-        public Instructor getInstructorById(int instructorId) {
+    public Instructor getInstructorById(int instructorId) {
         for (int i = 0; i < records.size(); i++) {
             Instructor ins = records.get(i);
-            if (ins.getId() == instructorId) {
-                return ins;
-            }
+            if (ins.getUserId() == instructorId) return ins;
         }
         return null;
     }
@@ -79,13 +52,34 @@ public class InstructorDatabase extends Database<Instructor> {
     public Instructor getInstructorByEmail(String email) {
         for (int i = 0; i < records.size(); i++) {
             Instructor ins = records.get(i);
-            if (ins.getEmail().equalsIgnoreCase(email)) {
-                return ins;
-            }
+            if (ins.getEmail().equalsIgnoreCase(email)) return ins;
         }
         return null;
     }
-        public boolean contains(int instructorId) {
+
+    public boolean contains(int instructorId) {
         return getInstructorById(instructorId) != null;
+    }
+
+    public boolean addCourseIdToInstructor(int instructorId, int courseId) {
+        Instructor ins = getInstructorById(instructorId);
+        if (ins == null) return false;
+        boolean added = ins.addCourseId(courseId);
+        if (added) saveToFile();
+        return added;
+    }
+
+    public boolean removeCourseIdFromInstructor(int instructorId, int courseId) {
+        Instructor ins = getInstructorById(instructorId);
+        if (ins == null) return false;
+        boolean removed = ins.removeCourseId(courseId);
+        if (removed) saveToFile();
+        return removed;
+    }
+
+    public ArrayList<Integer> getInstructorCourseIds(int instructorId) {
+        Instructor ins = getInstructorById(instructorId);
+        if (ins == null) return new ArrayList<Integer>();
+        return ins.getCreatedCourseIds();
     }
 }

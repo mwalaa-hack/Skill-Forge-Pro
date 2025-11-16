@@ -3,150 +3,160 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
  */
 package Backend.Models;
+
+import Backend.Database.Info;
 import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 
 /**
  *
  * @author Pc
  */
-public class Course {
+public class Course implements Info {
 
     private int courseId;
     private String title;
     private String description;
     private int instructorId;
     private ArrayList<Lesson> lessons;
-    private ArrayList<Student> students;
-    
-    public Course(int courseId, String title, String description, int instructorId){
-    setTitle(title);
-    setCourseId(courseId);
-    setDescription(description);
-    setInstructorId(instructorId);
-    this.lessons= new ArrayList<>();
-    this.students= new ArrayList<>();
+    private ArrayList<Integer> studentIds;
+
+    public Course(int courseId, String title, String description, int instructorId) {
+        setCourseId(courseId);
+        setTitle(title);
+        setDescription(description);
+        setInstructorId(instructorId);
+        this.lessons = new ArrayList<>();
+        this.studentIds = new ArrayList<>();
     }
-    public Course(JSONObject json){
-    this.courseId=json.getInt("courseId");
-    this.title=json.getString("title");
-    this.description=json.getString("description");
-    this.instructorId=json.getInt("instructorId");
-    this.lessons= new ArrayList<>();
-    JSONArray lessonArr=json.optJSONArray("lessons");
-    if(lessonArr!=null){
-    for(int i=0;i<lessonArr.length();i++){
-        this.lessons.add(new Lesson(lessonArr.getJSONObject(i)));
-    }    
-    }
-    this.students= new ArrayList<>();
-    JSONArray studentArr= json.optJSONArray("students");
-    if(studentArr!=null){
-    for(int i=0;i<studentArr.length();i++){
-    this.students.add(new Student(studentArr.getJSONObject(i)));
-    }
-    }
-    }
-    public void setTitle (String title){
-    this.title=title;
-    
-    }
-    public void setCourseId(int courseId){
-   if(courseId<0){
-            throw new IllegalArgumentException("cousreId can not be negative.");
+
+    public Course(JSONObject json) {
+        this.courseId = json.getInt("courseId");
+        this.title = json.getString("title");
+        this.description = json.getString("description");
+        this.instructorId = json.getInt("instructorId");
+        this.lessons = new ArrayList<>();
+        JSONArray lessonArr = json.optJSONArray("lessons");
+        if (lessonArr != null) {
+            for (int i = 0; i < lessonArr.length(); i++) {
+                lessons.add(new Lesson(lessonArr.getJSONObject(i)));
+            }
         }
-        if(courseId==0){
-            throw new IllegalArgumentException("courseId must be greater than zero.");
+        this.studentIds = new ArrayList<>();
+        JSONArray studentArr = json.optJSONArray("students");
+        if (studentArr != null) {
+            for (int i = 0; i < studentArr.length(); i++) {
+                studentIds.add(studentArr.getInt(i));
+            }
         }
-        if(courseId>14){
-            throw new IllegalArgumentException("courseId must not be greater than 14.");
-        }
-        this.courseId=courseId;
-    
     }
-    public void setDescription(String description){
-    this.description=description;
-    
+
+    public void setTitle(String title) {
+        this.title = title;
     }
-    public void setInstructorId(int instructorId){
-    if(instructorId<0){
-            throw new IllegalArgumentException("instructorId can not be negative.");
+
+    public void setCourseId(int courseId) {
+        if (courseId <= 0) {
+            throw new IllegalArgumentException("courseId must be > 0");
         }
-        if(instructorId==0){
-            throw new IllegalArgumentException("instructorId must be greater than zero.");
-        }
-        if(instructorId>14){
-            throw new IllegalArgumentException("instructorId must not be greater than 14.");
-        }
-        this.instructorId=instructorId;
+        this.courseId = courseId;
     }
-    public boolean addLesson(Lesson lesson){
-    if(lessons.contains(lesson)){
-        return false;
+
+    public void setDescription(String description) {
+        this.description = description;
     }
-    else{
+
+    public void setInstructorId(int instructorId) {
+        if (instructorId <= 0) {
+            throw new IllegalArgumentException("instructorId must be > 0");
+        }
+        this.instructorId = instructorId;
+    }
+
+    public boolean addLesson(Lesson lesson) {
+        for (int i = 0; i < lessons.size(); i++) {
+            if (lessons.get(i).getLessonId() == lesson.getLessonId()) {
+                return false;
+            }
+        }
         lessons.add(lesson);
         return true;
     }
-    
+
+    public boolean removeLessonById(int lessonId) {
+        for (int i = 0; i < lessons.size(); i++) {
+            if (lessons.get(i).getLessonId() == lessonId) {
+                lessons.remove(i);
+                return true;
+            }
+        }
+        return false;
     }
-    public boolean removeLesson(Lesson lesson){
-        if(lessons.contains(lesson)){
-        lessons.remove(lesson);
+
+    public boolean enrollStudentById(int studentId) {
+        for (int i = 0; i < studentIds.size(); i++) {
+            if (studentIds.get(i) == studentId) {
+                return false;
+            }
+        }
+        studentIds.add(studentId);
         return true;
-        }
-        else{
-            return false;
-        }
     }
-    public boolean enrollStudent(Student student) {
-    for (int i = 0; i < students.size(); i++) {
-        if (students.get(i).getUserId() == student.getUserId()) {
-       return false; 
-        }
-    }
-    students.add(student);
-    return true;
-}
-    public void removeStudent(Student student){
-        for(int i=0;i<students.size();i++){
-            if(students.indexOf(i).getUserId()==student.getUserId()){
-                students.remove(i);
+
+    public boolean removeStudentById(int studentId) {
+        boolean removed = false;
+        for (int i = 0; i < studentIds.size(); i++) {
+            if (studentIds.get(i) == studentId) {
+                studentIds.remove(i);
+                removed = true;
                 i--;
+            }
         }
+        return removed;
     }
-    }
-    public JSONObject toJson(){
-      JSONObject obj= new JSONObject();
-      obj.put("courseId",courseId);
-      obj.put("title", title);
-      obj.put("description", description);
-      obj.put("instructorId", instructorId);
-      JSONArray lessonArr=new JSONArray();
-      for(int i=0;i<lessons.size();i++){
-          lessonArr.put(lessons.get(i).toJson());
-      }
-      obj.put("lessons", lessonArr);
-      JSONArray studentArr = new JSONArray();
-        for (int i = 0; i < students.size(); i++) {
-            studentArr.put(students.get(i).toJson());
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+        obj.put("courseId", courseId);
+        obj.put("title", title);
+        obj.put("description", description);
+        obj.put("instructorId", instructorId);
+        JSONArray lessonArr = new JSONArray();
+        for (int i = 0; i < lessons.size(); i++) {
+            lessonArr.put(lessons.get(i).toJSON());
+        }
+        obj.put("lessons", lessonArr);
+        JSONArray studentArr = new JSONArray();
+        for (int i = 0; i < studentIds.size(); i++) {
+            studentArr.put(studentIds.get(i));
         }
         obj.put("students", studentArr);
-      
-      return obj;
+        return obj;
     }
-    public int getCourseId() { 
-    return courseId; }
-    public String getTitle() { 
-    return title; }
+
+    public int getCourseId() {
+        return courseId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
     public String getDescription() {
-    return description; }
-    public int getInstructorId() { 
-    return instructorId; }
-    public ArrayList<Lesson>getLessons() { 
-    return lessons; }
-    public ArrayList<Student>getStudents() { 
-    return students; }
+        return description;
+    }
+
+    public int getInstructorId() {
+        return instructorId;
+    }
+
+    public ArrayList<Lesson> getLessons() {
+        return lessons;
+    }
+
+    public ArrayList<Integer> getStudentIds() {
+        return studentIds;
+    }
 }

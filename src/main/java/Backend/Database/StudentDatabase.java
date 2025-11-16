@@ -4,6 +4,7 @@
  */
 package Backend.Database;
 import Backend.Models.*;
+import java.util.ArrayList;
 import org.json.JSONObject;
 
 /**
@@ -26,37 +27,19 @@ public class StudentDatabase extends Database<Student> {
         try {
             int userId = j.getInt("userId");
             String email = j.getString("email");
-
             for (int i = 0; i < records.size(); i++) {
                 Student s = records.get(i);
-                if (s.getUserId() == userId || s.getEmail().equalsIgnoreCase(email)) {
-                    return false;
-                }
+                if (s.getUserId() == userId || s.getEmail().equalsIgnoreCase(email)) return false;
             }
-
             Student newStudent = createRecordFrom(j);
             records.add(newStudent);
             saveToFile();
             return true;
-
         } catch (Exception e) {
             System.out.println("Failed to insert student: " + e.getMessage());
             return false;
         }
     }
-
-//    public void deleteStudent(int studentId) {
-//        boolean deleted = false;
-//        for (int i = 0; i < records.size(); i++) {
-//            Student s = records.get(i);
-//            if (s.getUserId() == studentId) {
-//                records.remove(i);
-//                deleted = true;
-//                i--;
-//            }
-//        }
-//        if (deleted) saveToFile();
-//    }
 
     public Student getStudentById(int studentId) {
         for (int i = 0; i < records.size(); i++) {
@@ -78,42 +61,44 @@ public class StudentDatabase extends Database<Student> {
         return getStudentById(studentId) != null;
     }
 
-    public boolean enrollCourse(int studentId, int courseId) {
+    public boolean enrollCourse(int studentId, int courseId, CourseDatabase courseDB) {
         Student s = getStudentById(studentId);
         if (s == null) return false;
-
-        ArrayList<Integer> enrolled = s.getEnrolledCourseIds();
-        if (enrolled.contains(courseId)) return false;
-
-        enrolled.add(courseId);
-        saveToFile();
-        return true;
+        Course c = courseDB.getCourseById(courseId);
+        if (c == null) return false;
+        boolean ok1 = s.enrollCourseById(courseId);
+        boolean ok2 = c.enrollStudentById(studentId);
+        if (ok1 && ok2) saveToFile();
+        return ok1 && ok2;
     }
 
-    public boolean dropCourse(int studentId, int courseId) {
+    public boolean dropCourse(int studentId, int courseId, CourseDatabase courseDB) {
         Student s = getStudentById(studentId);
         if (s == null) return false;
-
-        ArrayList<Integer> enrolled = s.getEnrolledCourseIds();
-        if (!enrolled.contains(courseId)) return false;
-
-        enrolled.remove((Integer) courseId);
-        s.removeProgress(courseId);
-        saveToFile();
-        return true;
+        Course c = courseDB.getCourseById(courseId);
+        if (c == null) return false;
+        boolean ok1 = s.dropCourseById(courseId);
+        boolean ok2 = c.removeStudentById(studentId);
+        if (ok1 && ok2) saveToFile();
+        return ok1 && ok2;
     }
 
-    public boolean markLessonCompleted(int studentId, int courseId, int lessonId) {
+    public boolean markLessonCompleted(int studentId, int courseId, int lessonId, CourseDatabase courseDB) {
         Student s = getStudentById(studentId);
         if (s == null) return false;
-
-        if (!s.getEnrolledCourseIds().contains(courseId)) return false;
-
-        ArrayList<Integer> completed = s.getCompletedLessons(courseId);
-        if (completed.contains(lessonId)) return false;
-
-        completed.add(lessonId);
-        saveToFile();
-        return true;
+        Course c = courseDB.getCourseById(courseId);
+        if (c == null) return false;
+        boolean lessonExists = false;
+        ArrayList<Lesson> lessons = c.getLessons();
+        for (int i = 0; i < lessons.size(); i++) {
+            if (lessons.get(i).getLessonId() == lessonId) {
+                lessonExists = true;
+                break;
+            }
+        }
+        if (!lessonExists) return false;
+        boolean ok = s.markLessonCompletedById(courseId, lessonId);
+        if (ok) saveToFile();
+        return ok;
     }
 }

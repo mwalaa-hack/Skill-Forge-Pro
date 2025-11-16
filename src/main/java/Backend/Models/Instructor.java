@@ -10,48 +10,63 @@ import java.util.ArrayList;
  */
 public class Instructor extends User {
 
-    private ArrayList<Course> createdCourses; // store Course objects
+    private ArrayList<Integer> createdCourseIds;
 
     public Instructor(int userId, String username, String email, String password) {
         super(userId, username, email, password, "instructor");
-        this.createdCourses = new ArrayList<>();
+        this.createdCourseIds = new ArrayList<>();
     }
 
     public Instructor(JSONObject j) {
         super(j);
-        this.createdCourses = new ArrayList<>();
-
+        this.createdCourseIds = new ArrayList<>();
         JSONArray arr = j.optJSONArray("createdCourses");
         if (arr != null) {
             for (int i = 0; i < arr.length(); i++) {
-                JSONObject courseJson = arr.getJSONObject(i);
-                createdCourses.add(new Course(courseJson)); // reconstruct Course object
+                createdCourseIds.add(arr.getInt(i));
             }
         }
     }
 
-    // Add course
-    public boolean addCourse(Course course) {
-        if (createdCourses.contains(course)) return false;
-        createdCourses.add(course);
+    public boolean addCourseId(int courseId) {
+        for (int i = 0; i < createdCourseIds.size(); i++) {
+            if (createdCourseIds.get(i) == courseId) {
+                return false;
+            }
+        }
+        createdCourseIds.add(courseId);
         return true;
     }
 
-    // Remove course
-    public boolean removeCourse(Course course) {
-        return createdCourses.remove(course);
+    public boolean removeCourseId(int courseId) {
+        for (int i = 0; i < createdCourseIds.size(); i++) {
+            if (createdCourseIds.get(i) == courseId) {
+                createdCourseIds.remove(i);
+                return true;
+            }
+        }
+        return false;
     }
 
-    public ArrayList<Course> getCreatedCourses() {
-        return createdCourses;
+    public boolean ownsCourse(int courseId) {
+        for (int i = 0; i < createdCourseIds.size(); i++) {
+            if (createdCourseIds.get(i) == courseId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public ArrayList<Integer> getCreatedCourseIds() {
+        return createdCourseIds;
     }
 
     @Override
     public JSONObject toJSON() {
         JSONObject j = super.toJSON();
         JSONArray arr = new JSONArray();
-        for (Course c : createdCourses) {
-            arr.put(c.toJson()); // store full object
+        for (int i = 0; i < createdCourseIds.size(); i++) {
+            arr.put(createdCourseIds.get(i));
         }
         j.put("createdCourses", arr);
         return j;
