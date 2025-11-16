@@ -44,7 +44,13 @@ public class StudentService {
     }
     
     public boolean markLessonAsCompleted(Course c, Lesson l){
-        boolean markStatus =  
+        boolean markStatus = students.markLessonCompleted(student.getUserID(), c.getCourseId(), l.getLessonId());
+        if(markStatus){
+            System.out.println("Lesson marked successfully");
+            return true;
+        }
+        System.out.println("Lesson could not be marked");
+        return false;
     }
     
     private void save(){

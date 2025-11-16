@@ -29,8 +29,8 @@ public class InstructorService {
         this.instructor = instructor;
     }
 
-   public boolean createCourse(String courseId, String title, String description) {
-        Course newCourse = new Course(courseId, title, description, instructor.id, new ArrayList<Lesson>(), new ArrayList<Student>());
+   public boolean createCourse(int courseId, String title, String description) {
+        Course newCourse = new Course(courseId, title, description, instructor.getUserID());
         JSONObject jsonCourse = newCourse.toJson();
       boolean addStatus = courses.insertRecord(jsonCourse);
       if(addStatus){
@@ -92,7 +92,7 @@ public class InstructorService {
     }
     
    public ArrayList<Course> getCourses(){
-       return instructor.getCourses();
+       return instructor.getCreatedCourses();
    }
    
    private void save(){
