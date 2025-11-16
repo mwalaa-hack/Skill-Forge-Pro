@@ -115,20 +115,19 @@ public User(JSONObject j) {
 
 
 
-    protected static String hashPassword(String password) {
+    // Hash password using SHA-256
+    private String hashPassword(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] hash = md.digest(password.getBytes());
             StringBuilder sb = new StringBuilder();
-            for (byte b : hash) {
-                sb.append(String.format("%02x", b));   //each byte of the hash is converted into two hexadecimal characters.
-            }
+            for (byte b : hash) sb.append(String.format("%02x", b));  //each byte of the hash is converted into two hexadecimal characters.
             return sb.toString();
         } catch (NoSuchAlgorithmException e) {
-            System.out.println("Hashing error: " + e.getMessage());
-            return "";
+            return null;
         }
     }
+
 
 
     public boolean verifyPassword(String password) {
