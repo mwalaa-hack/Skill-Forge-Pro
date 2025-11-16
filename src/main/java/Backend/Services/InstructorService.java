@@ -22,7 +22,7 @@ public class InstructorService {
     private Instructor instructor;
     private InstructorDatabase instructors;
     
-    InstructorService(Instructor instructor) {
+    public InstructorService(Instructor instructor) {
         courses = new CourseDatabase("courses.json");
         courses.readFromFile();
         instructors.readFromFile();
@@ -30,8 +30,8 @@ public class InstructorService {
     }
 
    public boolean createCourse(int courseId, String title, String description) {
-        Course newCourse = new Course(courseId, title, description, instructor.getUserID());
-        JSONObject jsonCourse = newCourse.toJson();
+        Course newCourse = new Course(courseId, title, description, instructor.getUserId());
+        JSONObject jsonCourse = newCourse.toJSON();
       boolean addStatus = courses.insertRecord(jsonCourse);
       if(addStatus){
           System.out.println("Added Course successfully!");
@@ -83,16 +83,16 @@ public class InstructorService {
         return false;
    }
    
-   public ArrayList<Student> getEnrolledStudents(Course c){
-        return c.getStudents();
+   public ArrayList<Integer> getEnrolledStudentsIds(Course c){
+        return c.getStudentIds();
     }
    
    public ArrayList<Lesson> getLessons(Course c){
         return c.getLessons();
     }
     
-   public ArrayList<Course> getCourses(){
-       return instructor.getCreatedCourses();
+   public ArrayList<Integer> getCreatedCoursesIds(){
+       return instructor.getCreatedCourseIds();
    }
    
    private void save(){

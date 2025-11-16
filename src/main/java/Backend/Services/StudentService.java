@@ -19,7 +19,7 @@ public class StudentService {
     private CourseDatabase courses;
     private Student student;
     private StudentDatabase students;
-    StudentService(Student student) {
+    public StudentService(Student student) {
         courses = new CourseDatabase("courses.json");
         courses.readFromFile();
         students.readFromFile();
@@ -31,7 +31,7 @@ public class StudentService {
     }
     
     public boolean enrollInCourse(Course c){
-        boolean enrollStatus = courses.enrollStudent(c.getCourseId(), student);
+        boolean enrollStatus = courses.enrollStudent(c.getCourseId(), student.getUserId());
         if(enrollStatus){
         System.out.println("Enrolled successfully!");
           return true;
@@ -44,7 +44,7 @@ public class StudentService {
     }
     
     public boolean markLessonAsCompleted(Course c, Lesson l){
-        boolean markStatus = students.markLessonCompleted(student.getUserID(), c.getCourseId(), l.getLessonId());
+        boolean markStatus = students.markLessonCompleted(student.getUserId(), c.getCourseId(), l.getLessonId(), courses);
         if(markStatus){
             System.out.println("Lesson marked successfully");
             return true;
@@ -58,7 +58,21 @@ public class StudentService {
         students.saveToFile();
     }
     
-
+    public ArrayList<Integer> getEnrolledCourses(){
+        return student.getEnrolledCourseIds();
+    }
+    
+    public Course getCourseById (int id){
+        Course c = courses.getCourseById(id);
+        if(c == null){
+            System.out.println("Course not found.");
+        }
+        else {
+            System.out.println("Course found successfully!");
+        }
+        return c;
+    }
+    
     public void logout(){
         save();
 }

@@ -16,7 +16,7 @@ import org.json.JSONObject;
 public class AuthService {
     private StudentDatabase students;
     private InstructorDatabase instructors;
-    AuthService(){
+    public AuthService(){
         students = new StudentDatabase("users.json");
         instructors = new InstructorDatabase("users.json");
         students.readFromFile();
