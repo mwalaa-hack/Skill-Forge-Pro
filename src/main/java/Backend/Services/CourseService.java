@@ -1,0 +1,38 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package Backend.Services;
+
+import Backend.Database.InstructorDatabase;
+import Backend.Database.StudentDatabase;
+import Backend.Models.Course;
+import Backend.Models.Instructor;
+
+/**
+ *
+ * @author HP_Laptop
+ */
+public class CourseService {
+    private Course course;
+    private StudentDatabase students;
+    private InstructorDatabase instructors;
+    public CourseService(Course course) {
+        students = new StudentDatabase("users.json");
+        students.readFromFile();
+        instructors = new InstructorDatabase("users.json");
+        students.readFromFile();
+        instructors.readFromFile();
+        this.course = course;
+    }
+    public String getInstructorName(){
+        int instructorId = course.getInstructorId();
+        Instructor i = instructors.getInstructorById(instructorId);
+        if(i!=null){
+            System.out.println("Fetched instructor name successfully!");
+            return i.getUsername();
+        }
+        System.out.println("Couldn't fetch an instructor with that id!");
+        return "";
+    }
+}
