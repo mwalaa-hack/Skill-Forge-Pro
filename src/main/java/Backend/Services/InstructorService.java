@@ -11,7 +11,7 @@ import Backend.Models.Instructor;
 import Backend.Models.Lesson;
 import Backend.Models.Student;
 import java.util.ArrayList;
-
+import org.json.JSONObject;
 /**
  *
  * @author pola-nasser13
@@ -31,57 +31,95 @@ public class InstructorService {
 
    public boolean createCourse(String courseId, String title, String description) {
         Course newCourse = new Course(courseId, title, description, instructor.id, new ArrayList<Lesson>(), new ArrayList<Student>());
-      boolean addStatus = instructor.addCourse(newCourse);
+        JSONObject jsonCourse = newCourse.toJson();
+      boolean addStatus = courses.insertRecord(jsonCourse);
       if(addStatus){
           System.out.println("Added Course successfully!");
-          courses.saveToFile();
-          instructors.saveToFile();
       }
         return addStatus;
     }
    public boolean editCourse(Course c){
-        
+        boolean updateStatus = courses.updateCourse(c);
+        if(updateStatus){
+            System.out.println("Course updated successfully!");
+            return true;
+        }
+        System.out.println("Failed to edit! Course not found.");
+        return false;
     }
     
    public boolean deleteCourse(Course c){
-    boolean deleteStatus = instructor.deleteCourse(c);
+    boolean deleteStatus = courses.deleteCourse(c.getCourseId());
     if(deleteStatus){
         System.out.println("Deleted Course successfully!");
-          courses.saveToFile();
-          instructors.saveToFile();
     }
     return deleteStatus;
     }
     
-   public boolean addLesson(Course c, String lessonId, String title, String content, ArrayList<String> optionalResources) {
-        Lesson newLesson = new Lesson(lessonId, title, content, optionalResources);
-      boolean addStatus = c.addLesson(newLesson);
+   public boolean addLesson(Course c, int lessonId, String title, String content, ArrayList<String> optionalResources) {
+        Lesson newLesson = new Lesson(lessonId, title, content);
+      boolean addStatus = courses.addLesson(c.getCourseId(), newLesson);
       if(addStatus){
           System.out.println("Added Lesson successfully!");
-          courses.saveToFile();
       }
         return addStatus;
     }
-   public boolean deleteLesson(Course c, String lessonId, String title, String content, ArrayList<String> optionalResources){
-        Lesson l = new Lesson(lessonId, title, content, optionalResources);
-    boolean deleteStatus = c.removeLesson(l);
+   public boolean deleteLesson(Course c, int lessonId, String title, String content){
+        
+    boolean deleteStatus = courses.deleteLesson(c.getCourseId(), lessonId);
     if(deleteStatus){
         System.out.println("Deleted Course successfully!");
-          courses.saveToFile();
     }
     return deleteStatus;
     }
     
+   public boolean editLesson(Course c, Lesson l){
+       boolean updateStatus = courses.updateLesson(c.getCourseId(), l);
+        if(updateStatus){
+            System.out.println("Lesson updated successfully!");
+            return true;
+        }
+        System.out.println("Failed to edit! Course not found.");
+        return false;
+   }
+   
    public ArrayList<Student> getEnrolledStudents(Course c){
         return c.getStudents();
     }
+   
+   public ArrayList<Lesson> getLessons(Course c){
+        return c.getLessons();
+    }
+    
+   public ArrayList<Course> getCourses(){
+       return instructor.getCourses();
+   }
    
    private void save(){
         courses.saveToFile();
         instructors.saveToFile();
     }
-    
 
+//   public boolean addResource(Lesson l, String resource){
+//       boolean addStatus = l.addResource(resource);
+//       if(addStatus){
+//           System.out.println("Resource added successfully!");
+//           return true;
+//       }
+//           System.out.println("Failed to add! Resource already added.");
+//          return false;
+//   }
+//
+//   public boolean removeResource(Lesson l, String resource){
+//       boolean removeStatus = l.removeResource(resource);
+//       if(removeStatus){
+//           System.out.println("Resource removed successfully!");
+//           return true;
+//       }
+//           System.out.println("Failed to remove! Resource wasn't added for lesson:" + l.getTitle() + ".");
+//          return false;
+//   }
+   
     public void logout(){
         save();
 }

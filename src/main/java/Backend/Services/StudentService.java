@@ -31,11 +31,9 @@ public class StudentService {
     }
     
     public boolean enrollInCourse(Course c){
-        boolean studentStatus = student.enrollInCourse(c);
-        boolean courseStatus = c.enrollStudent(student);
-        if(studentStatus && courseStatus){
+        boolean enrollStatus = courses.enrollStudent(c.getCourseId(), student);
+        if(enrollStatus){
         System.out.println("Enrolled successfully!");
-          save();
           return true;
     }
     return false;
@@ -46,7 +44,7 @@ public class StudentService {
     }
     
     public boolean markLessonAsCompleted(Course c, Lesson l){
-        boolean markStatus = 
+        boolean markStatus =  
     }
     
     private void save(){
