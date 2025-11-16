@@ -46,25 +46,25 @@ public class InstructorDatabase extends Database<Instructor> {
         }
     }
 
-    public void deleteInstructor(int instructorId) {
-        boolean deleted = false;
-
-        for (int i = 0; i < records.size(); i++) {
-            Instructor ins = records.get(i);
-            if (ins.getId() == instructorId) {
-                records.remove(i);
-                deleted = true;
-                i--;
-            }
-        }
-
-        if (deleted) {
-            System.out.println("Instructor deleted: " + instructorId);
-            saveToFile();
-        } else {
-            System.out.println("No instructor found with ID: " + instructorId);
-        }
-    }
+//    public void deleteInstructor(int instructorId) {
+//        boolean deleted = false;
+//
+//        for (int i = 0; i < records.size(); i++) {
+//            Instructor ins = records.get(i);
+//            if (ins.getId() == instructorId) {
+//                records.remove(i);
+//                deleted = true;
+//                i--;
+//            }
+//        }
+//
+//        if (deleted) {
+//            System.out.println("Instructor deleted: " + instructorId);
+//            saveToFile();
+//        } else {
+//            System.out.println("No instructor found with ID: " + instructorId);
+//        }
+//    }
     
         public Instructor getInstructorById(int instructorId) {
         for (int i = 0; i < records.size(); i++) {

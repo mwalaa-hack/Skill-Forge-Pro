@@ -48,22 +48,25 @@ public class CourseDatabase extends Database<Course> {
         }
     }
 
-    public void deleteCourse(int courseId) {
-        boolean deleted = false;
+public boolean deleteCourse(int courseId) {
+    boolean deleted = false;
 
-        for (int i = 0; i < records.size(); i++) {
-            Course c = records.get(i);
-            if (c.getCourseId() == courseId) {
-                records.remove(i);
-                deleted = true;
-                i--;
-            }
-        }
-
-        if (deleted) {
-            saveToFile();
+    for (int i = 0; i < records.size(); i++) {
+        Course c = records.get(i);
+        if (c.getCourseId() == courseId) {
+            records.remove(i);
+            deleted = true;
+            i--; 
         }
     }
+
+    if (deleted) {
+        saveToFile();
+    }
+
+    return deleted;
+}
+
 
     public Course getCourseById(int courseId) {
         for (int i = 0; i < records.size(); i++) {
