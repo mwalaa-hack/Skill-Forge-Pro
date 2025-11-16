@@ -25,7 +25,7 @@ public class Student extends User {
     private HashMap<Integer, ArrayList<Integer>> progress = new HashMap<>(); //map
 
     public Student(int id, String username, String email, String passwordHash){
-        super(id, "STUDENT", username, email, passwordHash);
+        super(id, username, email, passwordHash, "student");
     }
 
 
@@ -42,9 +42,9 @@ public class Student extends User {
 
         progress.put(courseId, new ArrayList<>());
 
-        course.enroll(this.getId());
+        course.enroll(this.getUserId());
 
-        System.out.println("Student " + this.getId() + " successfully enrolled in Course " + courseId);
+        System.out.println("Student " + this.getUserId() + " successfully enrolled in Course " + courseId);
         return true;
     }
 
