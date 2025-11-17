@@ -48,7 +48,7 @@ public class StudentDatabase extends Database<Student> {
         for (int i = 0; i < records.size(); i++) {
             Student s = records.get(i);
             if (s.getUserId() == studentId) {
-                if (s.role.equals("student")) {
+                if ("student".equalsIgnoreCase(s.getRole())) {
                     return s;
                 } else {
                     return null;
@@ -62,13 +62,12 @@ public class StudentDatabase extends Database<Student> {
         for (int i = 0; i < records.size(); i++) {
             Student s = records.get(i);
             if (s.getEmail().equalsIgnoreCase(email)) {
-                if (s.role.equals("student")) {
+                if ("student".equalsIgnoreCase(s.getRole())) {
                     return s;
                 } else {
                     return null;
                 }
             }
-
         }
         return null;
     }

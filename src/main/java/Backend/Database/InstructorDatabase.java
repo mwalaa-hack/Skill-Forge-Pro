@@ -48,29 +48,30 @@ public class InstructorDatabase extends Database<Instructor> {
         for (int i = 0; i < records.size(); i++) {
             Instructor ins = records.get(i);
             if (ins.getUserId() == instructorId) {
-                if (ins.role.equals("instructor")) {
-                    return ins;
-                } else {
-                    return null;
-                }
+                if ("instructor".equalsIgnoreCase(ins.getRole())) { 
+                return ins;
+            } else {
+                return null; 
             }
         }
-        return null;
     }
+    return null;
+}
 
-    public Instructor getInstructorByEmail(String email) {
-        for (int i = 0; i < records.size(); i++) {
-            Instructor ins = records.get(i);
-            if (ins.getEmail().equalsIgnoreCase(email)) {
-                if (ins.role.equals("instructor")) {
-                    return ins;
-                } else {
-                    return null;
-                }
+public Instructor getInstructorByEmail(String email) {
+    for (int i = 0; i < records.size(); i++) {
+        Instructor ins = records.get(i);
+        if (ins.getEmail().equalsIgnoreCase(email)) {
+            if ("instructor".equalsIgnoreCase(ins.getRole())) { 
+                return ins;
+            } else {
+                return null; 
             }
         }
-        return null;
     }
+    return null;
+}
+
 
     public boolean contains(int instructorId) {
         return getInstructorById(instructorId) != null;

@@ -12,10 +12,10 @@ import Backend.Models.User;
  */
 public class InstructorDashboard extends javax.swing.JPanel {
 
-    private User instructor; // store the logged-in instructor
+    private User instructor;
 
     public InstructorDashboard(User instructor) {
-        this.instructor = instructor; // store user info
+        this.instructor = instructor; 
         initComponents();
 
         jLabel1.setText("Instructor Dashboard");

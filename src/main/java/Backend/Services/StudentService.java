@@ -19,30 +19,34 @@ public class StudentService {
     private CourseDatabase courses;
     private Student student;
     private StudentDatabase students;
+
     public StudentService(Student student) {
-        courses = new CourseDatabase("courses.json");
-        courses.readFromFile();
-        students.readFromFile();
+        this.courses = new CourseDatabase("courses.json");
+        this.courses.readFromFile();
+
+        this.students = new StudentDatabase("students.json"); // initialize students database
+        this.students.readFromFile();
+
         this.student = student;
     }
-    
+
     public ArrayList<Course> getCourses(){
         return courses.getRecords();
     }
-    
+
     public boolean enrollInCourse(Course c){
         boolean enrollStatus = courses.enrollStudent(c.getCourseId(), student.getUserId());
         if(enrollStatus){
-        System.out.println("Enrolled successfully!");
-          return true;
+            System.out.println("Enrolled successfully!");
+            return true;
+        }
+        return false;
     }
-    return false;
-    }
-    
+
     public ArrayList<Lesson> getLessons(Course c){
         return c.getLessons();
     }
-    
+
     public boolean markLessonAsCompleted(Course c, Lesson l){
         boolean markStatus = students.markLessonCompleted(student.getUserId(), c.getCourseId(), l.getLessonId(), courses);
         if(markStatus){
@@ -52,35 +56,31 @@ public class StudentService {
         System.out.println("Lesson could not be marked");
         return false;
     }
-    
+
     private void save(){
         courses.saveToFile();
         students.saveToFile();
     }
-    
+
     public ArrayList<Integer> getEnrolledCourses(){
         return student.getEnrolledCourseIds();
     }
-    
+
     public Course getCourseById (int id){
         Course c = courses.getCourseById(id);
         if(c == null){
             System.out.println("Course not found.");
-        }
-        else {
+        } else {
             System.out.println("Course found successfully!");
         }
         return c;
     }
-    
+
     public boolean isLessonCompleted(Lesson l, Course c){
-        if(getLessons(c).contains(l)){
-            return true;
-        }
-        return false;
+        return getLessons(c).contains(l);
     }
-    
+
     public void logout(){
         save();
-}
+    }
 }

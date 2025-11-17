@@ -14,7 +14,7 @@ import javax.swing.JOptionPane;
  */
 public class SignUp extends javax.swing.JPanel {
 
-    private String role; // role from Home combo box
+    private String role;
 
     public SignUp(String role) {
         this.role = role;
@@ -175,7 +175,7 @@ this.setPreferredSize(new java.awt.Dimension(600, 500));
             signinFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             signinFrame.getContentPane().add(signinPanel);
             signinFrame.pack();
-            signinFrame.setLocationRelativeTo(null); // center window
+            signinFrame.setLocationRelativeTo(null); 
             signinFrame.setVisible(true);
 
         } else {

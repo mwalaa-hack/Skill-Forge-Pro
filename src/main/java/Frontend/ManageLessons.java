@@ -4,17 +4,33 @@
  */
 package courses;
 
+import Backend.Models.Course;
+import Backend.Models.Instructor;
+import Backend.Models.Lesson;
+import Backend.Services.InstructorService;
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Pc
  */
 public class ManageLessons extends javax.swing.JPanel {
 
-    /**
-     * Creates new form ManageLessons
-     */
-    public ManageLessons() {
+
+
+    private Instructor instructor;
+    private InstructorService instructorService;
+    private Course selectedCourse;
+    private Lesson selectedLesson;
+
+    public ManageLessons(Instructor instructor) {
+        this.instructor = instructor;
+        this.instructorService = new InstructorService(instructor);
+
         initComponents();
+        loadCourses();
+        addListeners();
     }
 
     /**
@@ -67,6 +83,12 @@ public class ManageLessons extends javax.swing.JPanel {
 
         jLabel5.setText("Content");
 
+        tfContent.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tfContentActionPerformed(evt);
+            }
+        });
+
         lessonsTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -92,6 +114,11 @@ public class ManageLessons extends javax.swing.JPanel {
 
         btnAdd.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnAdd.setText("Add");
+        btnAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddActionPerformed(evt);
+            }
+        });
 
         coursesTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -162,6 +189,11 @@ public class ManageLessons extends javax.swing.JPanel {
 
         btnDelete.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnDelete.setText("Delete");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
         jLabel10.setText("Resources");
 
@@ -196,7 +228,7 @@ public class ManageLessons extends javax.swing.JPanel {
                                             .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                             .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
                                             .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, 67, Short.MAX_VALUE))
+                                            .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 67, Short.MAX_VALUE))
                                         .addGap(18, 18, 18)
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                             .addComponent(tfContent)
@@ -318,8 +350,15 @@ public class ManageLessons extends javax.swing.JPanel {
     }//GEN-LAST:event_tfuContentActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnUpdateActionPerformed
+        if(selectedLesson == null) return;
+        selectedLesson.setTitle(tfuTitle.getText());
+        selectedLesson.setContent(tfuContent.getText());
+        ArrayList<String> res = new ArrayList<>();
+        if(!tfuResources.getText().isEmpty()) res.add(tfuResources.getText());
+        selectedLesson.setOptionalResources(res);
+        instructorService.editLesson(selectedCourse, selectedLesson);
+        loadLessons(selectedCourse);
+      }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
         // TODO add your handling code here:
@@ -332,6 +371,37 @@ public class ManageLessons extends javax.swing.JPanel {
     private void tfResourcesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfResourcesActionPerformed
        
     }//GEN-LAST:event_tfResourcesActionPerformed
+
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        if(selectedCourse == null) {
+            JOptionPane.showMessageDialog(this, "Select a course first!");
+            return;
+        }
+        try {
+            int id = Integer.parseInt(tfLessonId.getText());
+            String title = tfTitle.getText();
+            String content = tfContent.getText();
+            ArrayList<String> resources = new ArrayList<>();
+            if(!tfResources.getText().isEmpty()) resources.add(tfResources.getText());
+
+            boolean added = instructorService.addLesson(selectedCourse, id, title, content, resources);
+            if(added) loadLessons(selectedCourse);
+        } catch(Exception ex) {
+            JOptionPane.showMessageDialog(this, "Invalid input!");
+        }
+     }//GEN-LAST:event_btnAddActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        if(selectedLesson == null) return;
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure?", "Delete Lesson", JOptionPane.YES_NO_OPTION);
+        if(confirm == JOptionPane.YES_OPTION) {
+            instructorService.deleteLesson(selectedCourse, selectedLesson.getLessonId(), selectedLesson.getTitle(), selectedLesson.getContent());
+            loadLessons(selectedCourse);
+        }    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void tfContentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfContentActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tfContentActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

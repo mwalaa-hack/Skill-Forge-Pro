@@ -133,7 +133,7 @@ public class Home extends javax.swing.JFrame {
     private void SignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SignUpActionPerformed
     String role = jComboBox1.getSelectedItem().toString();
     
-    JFrame signupFrame = new JFrame("Sign Up" + role);
+    JFrame signupFrame = new JFrame("Sign Up " + role);
     SignUp signupPanel = new SignUp(role);
     
     signupFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -148,7 +148,7 @@ public class Home extends javax.swing.JFrame {
     private void SignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SignInActionPerformed
     String role = jComboBox1.getSelectedItem().toString();
     
-    JFrame signinFrame = new JFrame("Sign In" + role);
+    JFrame signinFrame = new JFrame("Sign In " + role);
     SignIn signinPanel = new SignIn(role);
     
     signinFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); 
