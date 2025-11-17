@@ -104,7 +104,15 @@ public class StudentDashboard extends javax.swing.JPanel {
             new String [] {
                 "Course ID", "Course Name", "Instructor", "Number of Lessons", "Progress"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane2.setViewportView(enrolledCoursesTable);
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
@@ -135,7 +143,15 @@ public class StudentDashboard extends javax.swing.JPanel {
             new String [] {
                 "Lesson ID", "Lesson Name", "Completed?"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane3.setViewportView(lessonTable);
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N

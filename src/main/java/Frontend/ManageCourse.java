@@ -7,7 +7,10 @@ package Frontend;
 import Backend.Models.Instructor;
 
 import Backend.Models.Course;
+import Backend.Models.Student;
 import Backend.Services.InstructorService;
+import Backend.Services.CourseService;
+import Backend.Services.StudentService;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -17,8 +20,10 @@ import javax.swing.table.DefaultTableModel;
  */
 public class ManageCourse extends javax.swing.JPanel {
     private Instructor instructor;
-     private DefaultTableModel model;
+     private DefaultTableModel coursesModel;
+     private DefaultTableModel studentsModel;
      private InstructorService instructorService;
+     private javax.swing.event.ListSelectionListener coursesListener;
     /**
      * Creates new form ManageCourse
      * @param instructor
@@ -27,8 +32,10 @@ public class ManageCourse extends javax.swing.JPanel {
         this.instructor = instructor;
         instructorService = new InstructorService(instructor);
         initComponents();
-           model = (DefaultTableModel) courseTable.getModel();
+           coursesModel = (DefaultTableModel) courseTable.getModel();
+           studentsModel = (DefaultTableModel) studentsTable.getModel();
            loadCoursesToTable();
+        addListeners();
     }
 
     /**
@@ -196,6 +203,11 @@ public class ManageCourse extends javax.swing.JPanel {
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+        });
+        studentsTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                studentsTableMouseClicked(evt);
             }
         });
         jScrollPane2.setViewportView(studentsTable);
@@ -368,17 +380,17 @@ public class ManageCourse extends javax.swing.JPanel {
         row[1] = c.getTitle();
         row[2] = c.getDescription();
         row[3] = c.getInstructorId();
-        model.addRow(row);
+        coursesModel.addRow(row);
     }
 
     private void fillFormFromTable(int row) {
-        tfuCourseId.setText(model.getValueAt(row, 0).toString());
-        tfuTitle.setText(model.getValueAt(row, 1).toString());
-        tfuDescription.setText(model.getValueAt(row, 2).toString());
+        tfuCourseId.setText(coursesModel.getValueAt(row, 0).toString());
+        tfuTitle.setText(coursesModel.getValueAt(row, 1).toString());
+        tfuDescription.setText(coursesModel.getValueAt(row, 2).toString());
     }
     
     private void loadCoursesToTable() {
-        model.setRowCount(0);
+        coursesModel.setRowCount(0);
         ArrayList<Integer> courseIds = instructorService.getCreatedCoursesIds();
         
         if (courseIds == null || courseIds.isEmpty()) {
@@ -422,7 +434,7 @@ public class ManageCourse extends javax.swing.JPanel {
         return;
     }
     
-    int courseId = (int) model.getValueAt(selectedRow, 0);
+    int courseId = (int) coursesModel.getValueAt(selectedRow, 0);
     Course course = instructorService.getCourseById(courseId);
     
     if (course == null) {
@@ -453,7 +465,7 @@ public class ManageCourse extends javax.swing.JPanel {
         int selectedRow = courseTable.getSelectedRow();
         
         if (selectedRow >= 0) {
-            oldCourseId = (int) model.getValueAt(selectedRow, 0);
+            oldCourseId = (int) coursesModel.getValueAt(selectedRow, 0);
         }
         
         if (oldCourseId == -1) {
@@ -494,7 +506,81 @@ public class ManageCourse extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_courseTableMouseClicked
 
+    private void studentsTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_studentsTableMouseClicked
+       int row = studentsTable.getSelectedRow();
+        if (row >= 0) {
+            fillStudentsToTable(row);
+        }
+    }//GEN-LAST:event_studentsTableMouseClicked
 
+    private void loadStudentsToTable(Course c) {
+        studentsModel.setRowCount(0);
+        ArrayList<Integer> studentsIds = instructorService.getEnrolledStudentsIds(c);
+        
+        if (studentsIds == null || studentsIds.isEmpty()) {
+            return;
+        }
+        CourseService courseService = new CourseService(c);
+        for (int i = 0; i < studentsIds.size(); i++) {
+            Student s = courseService.getStudentById(studentsIds.get(i));
+            if(s != null) {
+                addStudentToTable(s,c);
+            }
+        }
+    }
+    
+    private void fillStudentsToTable(int row) {
+        tfuCourseId.setText(studentsModel.getValueAt(row, 0).toString());
+        tfuTitle.setText(studentsModel.getValueAt(row, 1).toString());
+        tfuDescription.setText(studentsModel.getValueAt(row, 2).toString());
+    }
+    
+    private void addListeners() {
+    coursesListener = new javax.swing.event.ListSelectionListener() {
+        public void valueChanged(javax.swing.event.ListSelectionEvent e) {
+            if (!e.getValueIsAdjusting()) {
+                int row = courseTable.getSelectedRow();
+                if (row >= 0) {
+                    int courseId = (int) courseTable.getValueAt(row, 0);
+                    Course selectedCourse = instructorService.getCourseById(courseId);
+                    loadStudentsToTable(selectedCourse);
+                }
+            }
+        }
+    };
+    courseTable.getSelectionModel().addListSelectionListener(coursesListener);
+
+//    lessonsListener = new javax.swing.event.ListSelectionListener() {
+//        public void valueChanged(javax.swing.event.ListSelectionEvent e) {
+//            if (!e.getValueIsAdjusting()) {
+//                int row = lessonsTable.getSelectedRow();
+//                if (row >= 0 && selectedCourse != null) {
+//                    int lessonId = (int) lessonsTable.getValueAt(row, 0);
+//                    selectedLesson = selectedCourse.getLessonById(lessonId);
+//                    if (selectedLesson != null) {
+//                        tfuLessonId.setText(String.valueOf(selectedLesson.getLessonId()));
+//                        tfuTitle.setText(selectedLesson.getTitle());
+//                        tfuContent.setText(selectedLesson.getContent());
+//                        tfuResources.setText(String.join(",", selectedLesson.getResources()));
+//                    }
+//                }
+//            }
+//        }
+//    };
+//    lessonsTable.getSelectionModel().addListSelectionListener(lessonsListener);
+}
+    
+    private void addStudentToTable(Student s, Course c) {
+        Object[] row = new Object[3];
+        row[0] = s.getUserId();
+        row[1] = s.getUsername();
+        StudentService studentService = new StudentService(s);
+        int completed = studentService.getCompletedLessonsCount(c.getCourseId());
+        int total = c.getLessons().size();
+        row[2] = completed + "/" + total;
+        studentsModel.addRow(row);
+    }
+    
     private void clearUpdateForm() {
         tfuCourseId.setText("");
         tfuTitle.setText("");

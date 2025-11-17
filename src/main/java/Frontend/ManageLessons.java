@@ -109,6 +109,11 @@ public ManageLessons(Instructor instructor) {
             }
         });
         lessonsTable.setColumnSelectionAllowed(true);
+        lessonsTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lessonsTableMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(lessonsTable);
         lessonsTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 
@@ -219,7 +224,7 @@ public ManageLessons(Instructor instructor) {
                                             .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                             .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
                                             .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 67, Short.MAX_VALUE))
+                                            .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, 67, Short.MAX_VALUE))
                                         .addGap(18, 18, 18)
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                             .addComponent(tfContent)
@@ -447,6 +452,10 @@ public ManageLessons(Instructor instructor) {
     private void tfContentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfContentActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_tfContentActionPerformed
+
+    private void lessonsTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lessonsTableMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_lessonsTableMouseClicked
 
 private void addListeners() {
     coursesListener = new javax.swing.event.ListSelectionListener() {

@@ -22,7 +22,10 @@
     },
     {
         "description": "11",
-        "students": [1],
+        "students": [
+            1,
+            2
+        ],
         "title": "linear",
         "courseId": 5,
         "instructorId": 3,
