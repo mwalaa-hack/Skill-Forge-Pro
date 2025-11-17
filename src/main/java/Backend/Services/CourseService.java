@@ -19,36 +19,35 @@ public class CourseService {
     private Course course;
     private StudentDatabase students;
     private InstructorDatabase instructors;
-
     public CourseService(Course course) {
         students = new StudentDatabase("users.json");
         students.readFromFile();
         instructors = new InstructorDatabase("users.json");
+        students.readFromFile();
         instructors.readFromFile();
         this.course = course;
     }
-
-    public String getInstructorName() {
+    public String getInstructorName(){
         int instructorId = course.getInstructorId();
         Instructor i = instructors.getInstructorById(instructorId);
-        if (i != null) {
+        if(i!=null){
             System.out.println("Fetched instructor name successfully!");
             return i.getUsername();
         }
         System.out.println("Couldn't fetch an instructor with that id!");
         return "";
     }
-
-    public Lesson getLessonById(int lessonId) {
+    
+    public Lesson getLessonById(int lessonId){
         Lesson l = course.getLessonById(lessonId);
-        if (l == null) {
+        if(l == null){
             System.out.println("Couldn't find lesson!");
-        } else {
+    }
+        else{
             System.out.println("Successfully fetched lesson " + l.getTitle());
         }
         return l;
     }
-<<<<<<< HEAD
     
     public Student getStudentById(int studentid){
         Student s = students.getStudentById(studentid);
@@ -61,6 +60,3 @@ public class CourseService {
         return s;
     }
 }
-=======
-}
->>>>>>> 6cb45b1 (edit)
