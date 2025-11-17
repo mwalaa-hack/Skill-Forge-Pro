@@ -11,6 +11,7 @@ import Backend.Models.Lesson;
 import Backend.Models.Student;
 import Backend.Services.CourseService;
 import Backend.Services.StudentService;
+import java.util.ArrayList;
 
 
 
@@ -21,14 +22,20 @@ import Backend.Services.StudentService;
 public class StudentDashboard extends javax.swing.JPanel {
     
     StudentService studentService;
+    private DefaultTableModel availableModel;
+    private DefaultTableModel enrolledModel;
+    private DefaultTableModel lessonsModel;
     
-    /**
-     * Creates new form StudentDashboard
-     * @param student
-     */
     public StudentDashboard(Student student) {
         studentService = new StudentService(student);
         initComponents();
+        
+        availableModel = (DefaultTableModel) availableCourseTable.getModel();
+        enrolledModel = (DefaultTableModel) enrolledCoursesTable.getModel();
+        lessonsModel = (DefaultTableModel) lessonTable.getModel();
+        
+        loadAvailableCourses();
+        loadEnrolledCourses();
     }
 
     /**
@@ -210,215 +217,140 @@ public class StudentDashboard extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void refreshTables() {
-   DefaultTableModel enrolledModel = (DefaultTableModel) enrolledCoursesTable.getModel();
-    DefaultTableModel lessonsModel = (DefaultTableModel) lessonTable.getModel();
-    enrolledModel.setRowCount(0);
-    for (Course c : studentService.getCourses()) {
-        CourseService courseService = new CourseService(c);
-        int total = c.getLessons().size();
-    int completed = studentService.getLessons(c).size();
-
-    enrolledModel.addRow(new Object[]{
-        c.getCourseId(),
-        c.getTitle(),
-        courseService.getInstructorName(),
-        completed + "/" + total   
-    });
-    }
-
-    int selectedRow = enrolledCoursesTable.getSelectedRow();
-    lessonsModel.setRowCount(0);
-
-    if (selectedRow != -1) {
-        int courseId = (int) enrolledModel.getValueAt(selectedRow, 0);
-        Course selectedCourse = studentService.getCourseById(courseId);  
-        if (selectedCourse != null) {
-            for (Lesson l : selectedCourse.getLessons()) {
-                boolean done = studentService.isLessonCompleted(l, selectedCourse);
-                String doneText = "No";
-                if(done){
-                    doneText = "Yes";
-                }
-                else {
-                    doneText = "No";
-                }
-                lessonsModel.addRow(new Object[]{ l.getLessonId(), l.getTitle(), doneText});
+    private void loadAvailableCourses() {
+        availableModel.setRowCount(0);
+        ArrayList<Course> allCourses = studentService.getAllCourses();
+        if (allCourses != null) {
+            for (int i = 0; i < allCourses.size(); i++) {
+                Course course = allCourses.get(i);
+                CourseService courseService = new CourseService(course);
+                availableModel.addRow(new Object[]{
+                    course.getCourseId(),
+                    course.getTitle(),
+                    courseService.getInstructorName(),
+                    course.getLessons().size()
+                });
             }
         }
     }
-}
 
+    private void loadEnrolledCourses() {
+        enrolledModel.setRowCount(0);
+        ArrayList<Course> enrolledCourses = studentService.getEnrolledCourses();
+        if (enrolledCourses != null) {
+            for (int i = 0; i < enrolledCourses.size(); i++) {
+                Course course = enrolledCourses.get(i);
+                CourseService courseService = new CourseService(course);
+                int completed = studentService.getCompletedLessonsCount(course.getCourseId());
+                int total = course.getLessons().size();
+                enrolledModel.addRow(new Object[]{
+                    course.getCourseId(),
+                    course.getTitle(),
+                    courseService.getInstructorName(),
+                    total,
+                    completed + "/" + total
+                });
+            }
+        }
+    }
+
+    private void loadLessonsForCourse(int courseId) {
+        lessonsModel.setRowCount(0);
+        Course course = studentService.getCourse(courseId);
+        if (course != null) {
+            ArrayList<Lesson> lessons = course.getLessons();
+            for (int i = 0; i < lessons.size(); i++) {
+                Lesson lesson = lessons.get(i);
+                boolean completed = studentService.isLessonCompleted(courseId, lesson.getLessonId());
+                lessonsModel.addRow(new Object[]{
+                    lesson.getLessonId(),
+                    lesson.getTitle(),
+                    completed ? "Yes" : "No"
+                });
+            }
+        }
+    }
     
     private void accesslessonsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_accesslessonsActionPerformed
-                                            
-    int selectedRow = enrolledCoursesTable.getSelectedRow();
-    if (selectedRow == -1) {
-        JOptionPane.showMessageDialog(this, "Please select a course first.");
-        return;
-    }
-
-    int courseId = (Integer) enrolledCoursesTable.getValueAt(selectedRow, 0);
-
-    Course selectedCourse = null;
-    
-    
-    for (Course c : studentService.getCourses()) {
-        if (c.getCourseId() == courseId) {
-            selectedCourse = c;
-            break;
+        int selectedRow = enrolledCoursesTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a course first.");
+            return;
         }
-    }
 
-    if (selectedCourse == null) {
-        JOptionPane.showMessageDialog(this, "Selected course not found.");
-        return;
-    }
-
-    DefaultTableModel lessonsModel = (DefaultTableModel) lessonTable.getModel();
-    lessonsModel.setRowCount(0);
-
-    for (Lesson lesson : selectedCourse.getLessons()) {
-        boolean completed = studentService.getLessons(selectedCourse).contains(lesson);
-        lessonsModel.addRow(new Object[]{lesson.getLessonId(), lesson.getTitle(), completed ? "Yes" : "No"});
-    }
-    refreshTables();
+        int courseId = (Integer) enrolledModel.getValueAt(selectedRow, 0);
+        loadLessonsForCourse(courseId);                          
     }//GEN-LAST:event_accesslessonsActionPerformed
 
-    
-    
-    
-    
-    
-    
     private void enrollActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enrollActionPerformed
-    int selectedRow = availableCourseTable.getSelectedRow();
-    if (selectedRow == -1) {
-        JOptionPane.showMessageDialog(this, "Please select a course to enroll.");
-        return;
-    }
-
-    int courseId = (Integer) availableCourseTable.getValueAt(selectedRow, 0);
-    
-    Course selectedCourse = null;
-    for (Course c : studentService.getCourses()) {
-        if (c.getCourseId() == courseId) {
-            selectedCourse = c;
-            break;
+         int selectedRow = availableCourseTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a course to enroll.");
+            return;
         }
-    }
 
-    if (selectedCourse == null) {
-        JOptionPane.showMessageDialog(this, "Selected course not found.");
-        return;
-    }
-    
-    boolean enrolled = studentService.enrollInCourse(selectedCourse);
-    if (enrolled) {
+        int courseId = (Integer) availableModel.getValueAt(selectedRow, 0);
         
-        JOptionPane.showMessageDialog(this, "Enrolled in course: " + selectedCourse.getTitle());
-        DefaultTableModel enrolledModel = (DefaultTableModel) enrolledCoursesTable.getModel();
-        enrolledModel.setRowCount(0);
-        for (Course c : studentService.getCourses()) {
-            CourseService coursesService = new CourseService(c);
-            int completedLessons = studentService.getLessons(c).size();
-            enrolledModel.addRow(new Object[]{
-                c.getCourseId(),
-                c.getTitle(),
-                coursesService.getInstructorName(),
-                c.getLessons().size(),
-                completedLessons + "/" + c.getLessons().size()
-            });
-            
+        boolean enrolled = studentService.enrollInCourse(courseId);
+        if (enrolled) {
+            JOptionPane.showMessageDialog(this, "Enrolled in course successfully!");
+            loadEnrolledCourses();
+            loadAvailableCourses();
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to enroll! You might already be enrolled in this course.");
         }
-        refreshTables();
-    } else
-        JOptionPane.showMessageDialog(this, "Already enrolled in this course.");
-    
     }//GEN-LAST:event_enrollActionPerformed
 
     private void incompLessonButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_incompLessonButtonActionPerformed
-                                               
-    int selectedRow = lessonTable.getSelectedRow();
-    if (selectedRow == -1) {
-        JOptionPane.showMessageDialog(this, "Please select a lesson first.");
-        return;
-    }
-
-    int lessonId = (Integer) lessonTable.getValueAt(selectedRow, 0);
-
-    int selectedCourseRow = enrolledCoursesTable.getSelectedRow();
-    if (selectedCourseRow == -1) {
-        JOptionPane.showMessageDialog(this, "Please select a course first.");
-        return;
-    }
-
-    int courseId = (Integer) enrolledCoursesTable.getValueAt(selectedCourseRow, 0);
-
-    Course selectedCourse = null;
-    for (int id : studentService.getEnrolledCourses()) {
-        Course c = studentService.getCourseById(id);
-        if (c.getCourseId() == courseId) {
-            selectedCourse = c;
-            break;
+        int selectedLessonRow = lessonTable.getSelectedRow();
+        if (selectedLessonRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a lesson first.");
+            return;
         }
-    }
 
-    if (selectedCourse == null) return;
-    CourseService coursesService = new CourseService(selectedCourse);
-    Lesson lesson = coursesService.getLessonById(lessonId);
-    studentService.getLessons(selectedCourse).remove(lesson);
+        int selectedCourseRow = enrolledCoursesTable.getSelectedRow();
+        if (selectedCourseRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a course first.");
+            return;
+        }
 
-    DefaultTableModel lessonsModel = (DefaultTableModel) lessonTable.getModel();
-    lessonsModel.setValueAt("No", selectedRow, 2);
+        int courseId = (Integer) enrolledModel.getValueAt(selectedCourseRow, 0);
+        int lessonId = (Integer) lessonsModel.getValueAt(selectedLessonRow, 0);
 
-    DefaultTableModel enrolledModel = (DefaultTableModel) enrolledCoursesTable.getModel();
-    int completedCount = studentService.getLessons(selectedCourse).size();
-    int totalLessons = selectedCourse.getLessons().size();
-    enrolledModel.setValueAt(completedCount + "/" + totalLessons, selectedCourseRow, 4);
-    refreshTables();
+        boolean success = studentService.unmarkLesson(courseId, lessonId);
+        if (success) {
+            loadLessonsForCourse(courseId);
+            loadEnrolledCourses();
+            JOptionPane.showMessageDialog(this, "Lesson marked as incomplete.");
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to mark lesson as incomplete.");
+        }
     }//GEN-LAST:event_incompLessonButtonActionPerformed
 
     private void compLessonButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compLessonButtonActionPerformed
-    
-    int selectedRow = lessonTable.getSelectedRow();
-    if (selectedRow == -1) {
-        JOptionPane.showMessageDialog(this, "Please select a lesson first.");
-        return;
-    }
-
-    int lessonId = (Integer) lessonTable.getValueAt(selectedRow, 0);
-
-    int selectedCourseRow = enrolledCoursesTable.getSelectedRow();
-    if (selectedCourseRow == -1) {
-        JOptionPane.showMessageDialog(this, "Please select a course first.");
-        return;
-    }
-
-    int courseId = (Integer) enrolledCoursesTable.getValueAt(selectedCourseRow, 0);
-
-    Course selectedCourse = null;
-    for (int id : studentService.getEnrolledCourses()) {
-        Course c = studentService.getCourseById(id);
-        if (c.getCourseId() == courseId) {
-            selectedCourse = c;
-            break;
+        int selectedLessonRow = lessonTable.getSelectedRow();
+        if (selectedLessonRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a lesson first.");
+            return;
         }
-    }
 
-    if (selectedCourse == null) return;
-    CourseService coursesService = new CourseService(selectedCourse);
-    Lesson lesson = coursesService.getLessonById(lessonId);
-    studentService.markLessonAsCompleted(selectedCourse, lesson);
+        int selectedCourseRow = enrolledCoursesTable.getSelectedRow();
+        if (selectedCourseRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a course first.");
+            return;
+        }
 
-    DefaultTableModel lessonsModel = (DefaultTableModel) lessonTable.getModel();
-    lessonsModel.setValueAt("Yes", selectedRow, 2);
+        int courseId = (Integer) enrolledModel.getValueAt(selectedCourseRow, 0);
+        int lessonId = (Integer) lessonsModel.getValueAt(selectedLessonRow, 0);
 
-    DefaultTableModel enrolledModel = (DefaultTableModel) enrolledCoursesTable.getModel();
-    int completedCount = studentService.getLessons(selectedCourse).size();
-    int totalLessons = selectedCourse.getLessons().size();
-    enrolledModel.setValueAt(completedCount + "/" + totalLessons, selectedCourseRow, 4);
-    refreshTables();
+        boolean success = studentService.completeLesson(courseId, lessonId);
+        if (success) {
+            loadLessonsForCourse(courseId);
+            loadEnrolledCourses();
+            JOptionPane.showMessageDialog(this, "Lesson marked as complete.");
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to mark lesson as complete.");
+        }        
     }//GEN-LAST:event_compLessonButtonActionPerformed
 
 

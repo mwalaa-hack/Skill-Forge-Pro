@@ -1,26 +1,36 @@
 [
     {
-        "description": "lknlk",
-        "students": [],
-        "title": "hjknhj",
-        "courseId": 45354,
-        "instructorId": 9505,
-        "lessons": []
+        "description": "very easy",
+        "students": [1],
+        "title": "math2",
+        "courseId": 1,
+        "instructorId": 3,
+        "lessons": [
+            {
+                "lessonId": 5,
+                "resources": ["qq"],
+                "title": "foruier",
+                "content": "qq"
+            },
+            {
+                "lessonId": 11,
+                "resources": ["ff"],
+                "title": "ee",
+                "content": "dd"
+            }
+        ]
     },
     {
-        "description": "ujknhlk",
-        "students": [],
-        "title": "jkbkj",
-        "courseId": 5675476,
-        "instructorId": 9505,
-        "lessons": []
-    },
-    {
-        "description": "asdasd",
-        "students": [],
-        "title": "qwer",
-        "courseId": 222,
-        "instructorId": 9505,
-        "lessons": []
+        "description": "11",
+        "students": [1],
+        "title": "linear",
+        "courseId": 5,
+        "instructorId": 3,
+        "lessons": [{
+            "lessonId": 22,
+            "resources": ["wq"],
+            "title": "33",
+            "content": "wqw"
+        }]
     }
 ]

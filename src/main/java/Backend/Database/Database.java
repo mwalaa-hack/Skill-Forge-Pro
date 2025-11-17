@@ -17,7 +17,6 @@ import org.json.JSONObject;
  * @author pola-nasser13
  */
 public abstract class Database<D extends Info> {
-
     protected ArrayList<D> records;
     protected String filename;
 
@@ -32,7 +31,7 @@ public abstract class Database<D extends Info> {
     public abstract boolean insertRecord(JSONObject j);
 
     public void readFromFile() {
-        records.clear();
+        ArrayList<D> tempRecords = new ArrayList<>();
         try {
             File file = new File(filename);
             if (!file.exists()) {
@@ -53,12 +52,14 @@ public abstract class Database<D extends Info> {
                 JSONObject obj = arr.getJSONObject(i);
                 D rec = createRecordFrom(obj);
                 if (rec != null) {
-                    records.add(rec);
+                    tempRecords.add(rec);
                 }
             }
         } catch (Exception e) {
-            System.out.println("Failed to read JSON: " + filename);
+            System.out.println("Failed to read JSON: " + filename + " - " + e.getMessage());
+            return;
         }
+        records = tempRecords;
     }
 
     public ArrayList<D> getRecords() {

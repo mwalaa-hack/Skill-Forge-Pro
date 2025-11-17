@@ -55,7 +55,9 @@ public class Instructor extends User {
     public JSONObject toJSON() {
         JSONObject j = super.toJSON();
         JSONArray arr = new JSONArray();
-        for (int id : createdCourseIds) arr.put(id);
+        for (int i = 0; i < createdCourseIds.size(); i++) {
+            arr.put(createdCourseIds.get(i));
+        }
         j.put("createdCourses", arr);
         return j;
     }

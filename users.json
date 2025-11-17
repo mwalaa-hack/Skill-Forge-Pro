@@ -1,8 +1,46 @@
-[{
-    "role": "instructor",
-    "createdCourses": [],
-    "userId": 9505,
-    "email": "qw@gmail.com",
-    "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
-    "username": "pola"
-}]
+[
+    {
+        "role": "student",
+        "enrolledCourses": [
+            {
+                "completedLessons": [5],
+                "courseId": 1
+            },
+            {
+                "completedLessons": [22],
+                "courseId": 5
+            }
+        ],
+        "userId": 1,
+        "email": "pola@gmail.com",
+        "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+        "username": "Pola"
+    },
+    {
+        "role": "student",
+        "enrolledCourses": [],
+        "userId": 2,
+        "email": "walaa@gmail.com",
+        "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+        "username": "walaa"
+    },
+    {
+        "role": "instructor",
+        "createdCourses": [
+            1,
+            5
+        ],
+        "userId": 3,
+        "email": "obra@gmail.com",
+        "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+        "username": "obra"
+    },
+    {
+        "role": "instructor",
+        "createdCourses": [],
+        "userId": 4,
+        "email": "youssef@gmail.com",
+        "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+        "username": "youssef"
+    }
+]

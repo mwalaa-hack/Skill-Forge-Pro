@@ -1,94 +1,46 @@
 package Backend.Services;
 
-import Backend.Database.InstructorDatabase;
-import Backend.Database.StudentDatabase;
+import Backend.Database.UserDatabase;
 import Backend.Models.Instructor;
 import Backend.Models.Student;
 import org.json.JSONObject;
 
 public class AuthService {
 
-    private StudentDatabase students;
-    private InstructorDatabase instructors;
+    private UserDatabase userDB;
 
     public AuthService() {
-        students = new StudentDatabase("users.json");
-        instructors = new InstructorDatabase("users.json");
+        userDB = new UserDatabase("users.json");
     }
 
     public Student loginStudent(String email, String enteredPassword) {
-        if (students == null) {
-            System.out.println("Student database not initialized!");
-            return null;
+        Student student = userDB.getStudentByEmail(email);
+        if (student != null && student.verifyPassword(enteredPassword)) {
+            return student;
         }
-
-        Student student = students.getStudentByEmail(email);
-
-        if (student == null) {
-            System.out.println("No Student found with email: " + email);
-            return null;
-        }
-
-        if (!"student".equalsIgnoreCase(student.getRole())) {
-            System.out.println("User is not a student");
-            return null;
-        }
-
-        if (!student.verifyPassword(enteredPassword)) {
-            System.out.println("Wrong Password!");
-            return null;
-        }
-
-        return student;
+        return null;
     }
 
     public Instructor loginInstructor(String email, String enteredPassword) {
-        if (instructors == null) {
-            System.out.println("Instructor database not initialized!");
-            return null;
+        Instructor instructor = userDB.getInstructorByEmail(email);
+        if (instructor != null && instructor.verifyPassword(enteredPassword)) {
+            return instructor;
         }
-
-        Instructor instructor = instructors.getInstructorByEmail(email);
-
-        if (instructor == null) {
-            System.out.println("No Instructor found with email: " + email);
-            return null;
-        }
-
-        if (!"instructor".equalsIgnoreCase(instructor.getRole())) {
-            System.out.println("User is not an instructor");
-            return null;
-        }
-
-        if (!instructor.verifyPassword(enteredPassword)) {
-            System.out.println("Wrong Password!");
-            return null;
-        }
-
-        return instructor;
+        return null;
     }
 
     public boolean signup(int id, String role, String username, String email, String password) {
-        boolean insertStatus = false;
-
         if ("student".equalsIgnoreCase(role)) {
-            Student s = new Student(id, username, email, password);
-            JSONObject JSONUser = s.toJSON();
-            insertStatus = students.insertRecord(JSONUser);
+            Student student = new Student(id, username, email, password);
+            return userDB.insertRecord(student.toJSON());
         } else if ("instructor".equalsIgnoreCase(role)) {
-            Instructor ins = new Instructor(id, username, email, password);
-            JSONObject JSONUser = ins.toJSON();
-            insertStatus = instructors.insertRecord(JSONUser);
+            Instructor instructor = new Instructor(id, username, email, password);
+            return userDB.insertRecord(instructor.toJSON());
         }
-
-        return insertStatus;
+        return false;
     }
 
-    public StudentDatabase getStudentDatabase() {
-        return students;
-    }
-
-    public InstructorDatabase getInstructorDatabase() {
-        return instructors;
+    public UserDatabase getUserDatabase() {
+        return userDB;
     }
 }

@@ -335,33 +335,41 @@ public class ManageCourse extends javax.swing.JPanel {
         int id = -1;
         try {
             id = Integer.parseInt(tfCourseId.getText().trim());
-        }
-        catch(NumberFormatException e){
+        } catch(NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Please Enter a valid ID!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-        if (id <= 0){
-             JOptionPane.showMessageDialog(this, "Please Enter a valid ID!", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
+        
+        if (id <= 0) {
+            JOptionPane.showMessageDialog(this, "Please Enter a valid ID!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
+        
         String title = tfTitle.getText().trim();
         String description = tfDescription.getText().trim();
-        int instructorId = instructor.getid();
-        if(instructorService.createCourse(id, title, description)){
-             JOptionPane.showMessageDialog(this, "Course created successfully!");
-    displayAllAdd();
-    clearAddForm();
-    loadCoursesToTable();
+        
+        if(title.isEmpty() || description.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill all fields!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        if(instructorService.createCourse(id, title, description)) {
+            JOptionPane.showMessageDialog(this, "Course created successfully!");
+            clearAddForm();
+            loadCoursesToTable();
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to create course! Course ID might already exist.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnAddActionPerformed
 
-    private void addCourseToTable(Course c){
-   Object[]row = new Object[4];
-   row[0]=c.getCourseId();
-   row[1]=c.getTitle();
-   row[2]= c.getDescription();
-   row[3]= c.getInstructorId();
-   model.addRow(row);
-}
+    private void addCourseToTable(Course c) {
+        Object[] row = new Object[4];
+        row[0] = c.getCourseId();
+        row[1] = c.getTitle();
+        row[2] = c.getDescription();
+        row[3] = c.getInstructorId();
+        model.addRow(row);
+    }
 
     private void fillFormFromTable(int row) {
         tfuCourseId.setText(model.getValueAt(row, 0).toString());
@@ -371,35 +379,22 @@ public class ManageCourse extends javax.swing.JPanel {
     
     private void loadCoursesToTable() {
         model.setRowCount(0);
-        ArrayList<Integer> allCourses = instructorService.getCreatedCoursesIds();
-        if (allCourses == null || allCourses.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "No courses are available in the database.",
-                    "Database Empty", JOptionPane.INFORMATION_MESSAGE);
+        ArrayList<Integer> courseIds = instructorService.getCreatedCoursesIds();
+        
+        if (courseIds == null || courseIds.isEmpty()) {
             return;
         }
 
-        for (int id : allCourses) {
-                Course c=instructorService.getCourseById(id);
-                addCourseToTable(c);
+        for (int i = 0; i < courseIds.size(); i++) {
+            Course course = instructorService.getCourseById(courseIds.get(i));
+            if(course != null) {
+                addCourseToTable(course);
+            }
         }
     }
     
-    private void displayAllAdd(){
-    model.setRowCount(0);
-    ArrayList<Integer> coursesList= instructorService.getCreatedCoursesIds();
-    for(int i=0;i<coursesList.size();i++){
-        Course current=instructorService.getCourseById(coursesList.get(i));
-        if(current==null)continue;
-        Object[]row = new Object[6];
-   row[0]=current.getCourseId();
-   row[1]=current.getTitle();
-   row[2]= current.getDescription();
-   row[3]= current.getInstructorId();
-   model.addRow(row);}
-}
-    
-    void clearAddForm(){
-         tfTitle.setText("");
+    void clearAddForm() {
+        tfTitle.setText("");
         tfCourseId.setText("");
         tfDescription.setText("");
     }
@@ -421,61 +416,90 @@ public class ManageCourse extends javax.swing.JPanel {
     }//GEN-LAST:event_btnRefreshActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnDeleteActionPerformed
+   int selectedRow = courseTable.getSelectedRow();
+    if (selectedRow < 0) {
+        JOptionPane.showMessageDialog(this, "Please select a course to delete!");
+        return;
+    }
+    
+    int courseId = (int) model.getValueAt(selectedRow, 0);
+    Course course = instructorService.getCourseById(courseId);
+    
+    if (course == null) {
+        JOptionPane.showMessageDialog(this, "Course not found!");
+        return;
+    }
+    
+    int confirm = JOptionPane.showConfirmDialog(this, 
+        "Are you sure you want to delete this course?", 
+        "Confirm Delete", 
+        JOptionPane.YES_NO_OPTION);
+        
+    if (confirm == JOptionPane.YES_OPTION) {
+        boolean deleted = instructorService.deleteCourse(course);
+        if (deleted) {
+            JOptionPane.showMessageDialog(this, "Course deleted successfully!");
+            loadCoursesToTable();
+            clearUpdateForm();
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to delete course!");
+        }
+    }
+        }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
-        try {
-        int courseId = Integer.parseInt(tfuCourseId.getText().trim());
-        String newTitle = tfuTitle.getText().trim();
-        String newDescription = tfuDescription.getText().trim();
-
-        Course c = instructorService.getCourseById(courseId);
-
-        if (c == null) {
-            JOptionPane.showMessageDialog(this, "Course not found!");
+      try {
+        int oldCourseId = -1;
+        int selectedRow = courseTable.getSelectedRow();
+        
+        if (selectedRow >= 0) {
+            oldCourseId = (int) model.getValueAt(selectedRow, 0);
+        }
+        
+        if (oldCourseId == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a course to update!");
             return;
         }
-
-        c.setTitle(newTitle);
-        c.setDescription(newDescription);
-
-        boolean updated = instructorService.editCourse(c);
-
+        
+        int newCourseId = Integer.parseInt(tfuCourseId.getText().trim());
+        String newTitle = tfuTitle.getText().trim();
+        String newDescription = tfuDescription.getText().trim();
+        
+        if(newTitle.isEmpty() || newDescription.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill all fields!");
+            return;
+        }
+        
+        boolean updated = instructorService.updateCourse(oldCourseId, newCourseId, newTitle, newDescription);
+        
         if (updated) {
             JOptionPane.showMessageDialog(this, "Course updated successfully!");
             loadCoursesToTable();
+            clearUpdateForm();
         } else {
-            JOptionPane.showMessageDialog(this, "Failed to update course.");
+            JOptionPane.showMessageDialog(this, "Failed to update course! New course ID might already exist.");
         }
-
+        
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "Please enter valid course ID!");
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Invalid update data!");
+        JOptionPane.showMessageDialog(this, "Error updating course!");
     }
     }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void courseTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_courseTableMouseClicked
         int row = courseTable.getSelectedRow();
-    if (row >= 0) {
-        fillFormFromTable(row);
-    }
+        if (row >= 0) {
+            fillFormFromTable(row);
+        }
     }//GEN-LAST:event_courseTableMouseClicked
 
 
-     private void coursetTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_studentTableMouseClicked
-    int row = courseTable.getSelectedRow();
-
-    if (row < 0) {
-        JOptionPane.showMessageDialog(
-            this,
-            "Please select a row in the table.",
-            "Invalid Selection",
-            JOptionPane.ERROR_MESSAGE
-        );
-        return;
+    private void clearUpdateForm() {
+        tfuCourseId.setText("");
+        tfuTitle.setText("");
+        tfuDescription.setText("");
     }
-
-     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
     private javax.swing.JButton btnDelete;

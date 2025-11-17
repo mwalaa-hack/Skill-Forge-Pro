@@ -1,86 +1,96 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Backend.Services;
 
 import Backend.Database.CourseDatabase;
-import Backend.Database.StudentDatabase;
+import Backend.Database.UserDatabase;
 import Backend.Models.Course;
 import Backend.Models.Lesson;
 import Backend.Models.Student;
 import java.util.ArrayList;
 
-/**
- *
- * @author pola-nasser13
- */
 public class StudentService {
+
     private CourseDatabase courses;
+    private UserDatabase users;
     private Student student;
-    private StudentDatabase students;
 
     public StudentService(Student student) {
         this.courses = new CourseDatabase("courses.json");
-        this.courses.readFromFile();
-
-        this.students = new StudentDatabase("students.json"); // initialize students database
-        this.students.readFromFile();
-
+        this.users = new UserDatabase("users.json");
         this.student = student;
     }
 
-    public ArrayList<Course> getCourses(){
-        return courses.getRecords();
+    public ArrayList<Course> getAllCourses() {
+        return courses.getAllCourses();
     }
 
-    public boolean enrollInCourse(Course c){
-        boolean enrollStatus = courses.enrollStudent(c.getCourseId(), student.getUserId());
-        if(enrollStatus){
-            System.out.println("Enrolled successfully!");
-            return true;
+    public boolean enrollInCourse(int courseId) {
+        boolean enrolled = courses.enrollStudent(courseId, student.getUserId());
+        if (enrolled) {
+            student.enrollCourseById(courseId);
+            users.updateUser(student);
+        }
+        return enrolled;
+    }
+
+    public boolean dropCourse(int courseId) {
+        Course course = courses.getCourseById(courseId);
+        if (course != null) {
+            course.removeStudentById(student.getUserId());
+        }
+        student.dropCourseById(courseId);
+        return users.updateUser(student);
+    }
+
+    public boolean completeLesson(int courseId, int lessonId) {
+        student.markLessonCompletedById(courseId, lessonId);
+        return users.updateUser(student);
+    }
+
+    public boolean unmarkLesson(int courseId, int lessonId) {
+        ArrayList<Integer> completedLessons = student.getCompletedLessonsByCourseId(courseId);
+        boolean removed = false;
+        for (int i = 0; i < completedLessons.size(); i++) {
+            if (completedLessons.get(i) == lessonId) {
+                completedLessons.remove(i);
+                removed = true;
+                break;
+            }
+        }
+        if (removed) {
+            return users.updateUser(student);
         }
         return false;
     }
 
-    public ArrayList<Lesson> getLessons(Course c){
-        return c.getLessons();
+    public ArrayList<Course> getEnrolledCourses() {
+        ArrayList<Course> enrolledCourses = new ArrayList<>();
+        ArrayList<Integer> enrolledIds = student.getEnrolledCourseIds();
+        
+        for (int i = 0; i < enrolledIds.size(); i++) {
+            Course course = courses.getCourseById(enrolledIds.get(i));
+            if (course != null) {
+                enrolledCourses.add(course);
+            }
+        }
+        return enrolledCourses;
     }
 
-    public boolean markLessonAsCompleted(Course c, Lesson l){
-        boolean markStatus = students.markLessonCompleted(student.getUserId(), c.getCourseId(), l.getLessonId(), courses);
-        if(markStatus){
-            System.out.println("Lesson marked successfully");
-            return true;
+    public boolean isLessonCompleted(int courseId, int lessonId) {
+        ArrayList<Integer> completed = student.getCompletedLessonsByCourseId(courseId);
+        for (int i = 0; i < completed.size(); i++) {
+            if (completed.get(i) == lessonId) {
+                return true;
+            }
         }
-        System.out.println("Lesson could not be marked");
         return false;
     }
 
-    private void save(){
-        courses.saveToFile();
-        students.saveToFile();
+    public Course getCourse(int courseId) {
+        return courses.getCourseById(courseId);
     }
 
-    public ArrayList<Integer> getEnrolledCourses(){
-        return student.getEnrolledCourseIds();
-    }
-
-    public Course getCourseById (int id){
-        Course c = courses.getCourseById(id);
-        if(c == null){
-            System.out.println("Course not found.");
-        } else {
-            System.out.println("Course found successfully!");
-        }
-        return c;
-    }
-
-    public boolean isLessonCompleted(Lesson l, Course c){
-        return getLessons(c).contains(l);
-    }
-
-    public void logout(){
-        save();
+    public int getCompletedLessonsCount(int courseId) {
+        ArrayList<Integer> completedLessons = student.getCompletedLessonsByCourseId(courseId);
+        return completedLessons.size();
     }
 }

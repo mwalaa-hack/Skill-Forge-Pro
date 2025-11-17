@@ -12,7 +12,7 @@ import java.security.MessageDigest;
  * @author Mohamed Walaa
  */
 
-public abstract class User implements Info {
+public  class User implements Info {
 
     protected int userId;
     protected String username;

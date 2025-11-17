@@ -18,22 +18,21 @@ import javax.swing.table.DefaultTableModel;
  * @author Pc
  */
 public class ManageLessons extends javax.swing.JPanel {
-
-
-
     private Instructor instructor;
     private InstructorService instructorService;
     private Course selectedCourse;
     private Lesson selectedLesson;
+    private javax.swing.event.ListSelectionListener coursesListener;
+    private javax.swing.event.ListSelectionListener lessonsListener;
+    
+public ManageLessons(Instructor instructor) {
+    this.instructor = instructor;
+    this.instructorService = new InstructorService(instructor);
 
-    public ManageLessons(Instructor instructor) {
-        this.instructor = instructor;
-        this.instructorService = new InstructorService(instructor);
-
-        initComponents();
-        loadCourses();
-        addListeners();
-    }
+    initComponents();
+    loadCourses();
+    addListeners();
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -198,7 +197,6 @@ public class ManageLessons extends javax.swing.JPanel {
 
         jLabel11.setText("Resources");
 
-        tfuResources.setText("tfuResources");
         tfuResources.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 tfuResourcesActionPerformed(evt);
@@ -338,14 +336,46 @@ public class ManageLessons extends javax.swing.JPanel {
     }//GEN-LAST:event_tfuContentActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
-        if (selectedLesson == null) return;
-        selectedLesson.setTitle(tfuTitle.getText());
-        selectedLesson.setContent(tfuContent.getText());
-        ArrayList<String> res = new ArrayList<>(Arrays.asList(tfuResources.getText().split(",")));
-        selectedLesson.setResources(res);
-
-        instructorService.editLesson(selectedCourse, selectedLesson);
-        loadLessons(selectedCourse);
+   if (selectedLesson == null || selectedCourse == null) {
+        JOptionPane.showMessageDialog(this, "Please select a lesson to update!");
+        return;
+    }
+    
+    try {
+        int oldLessonId = selectedLesson.getLessonId();
+        int newLessonId = Integer.parseInt(tfuLessonId.getText().trim());
+        String title = tfuTitle.getText().trim();
+        String content = tfuContent.getText().trim();
+        String resourcesText = tfuResources.getText().trim();
+        
+        if(title.isEmpty() || content.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill title and content!");
+            return;
+        }
+        
+        ArrayList<String> resources = new ArrayList<>();
+        if(!resourcesText.isEmpty()) {
+            String[] resourceArray = resourcesText.split(",");
+            for (int i = 0; i < resourceArray.length; i++) {
+                resources.add(resourceArray[i].trim());
+            }
+        }
+        
+        boolean updated = instructorService.updateLesson(selectedCourse.getCourseId(), oldLessonId, newLessonId, title, content, resources);
+        
+        if (updated) {
+            JOptionPane.showMessageDialog(this, "Lesson updated successfully!");
+            loadLessons(selectedCourse);
+            clearUpdateForm();
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to update lesson!");
+        }
+        
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "Please enter valid lesson ID!");
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error updating lesson!");
+    }
       }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void tfuResourcesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfuResourcesActionPerformed
@@ -357,78 +387,143 @@ public class ManageLessons extends javax.swing.JPanel {
     }//GEN-LAST:event_tfResourcesActionPerformed
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
-       if (selectedCourse == null) {
-            JOptionPane.showMessageDialog(this, "Select a course first!");
+    if (selectedCourse == null) {
+        JOptionPane.showMessageDialog(this, "Select a course first!");
+        return;
+    }
+    try {
+        int id = Integer.parseInt(tfLessonId.getText().trim());
+        String title = tfTitle.getText().trim();
+        String content = tfContent.getText().trim();
+        String resourcesText = tfResources.getText().trim();
+        
+        if(title.isEmpty() || content.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill title and content!");
             return;
         }
-        try {
-            int id = Integer.parseInt(tfLessonId.getText());
-            String title = tfTitle.getText();
-            String content = tfContent.getText();
-            ArrayList<String> resources = new ArrayList<>(Arrays.asList(tfResources.getText().split(",")));
-
-            boolean added = instructorService.addLesson(selectedCourse, id, title, content, resources);
-            if (added) loadLessons(selectedCourse);
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Invalid input!");
+        
+        ArrayList<String> resources = new ArrayList<>();
+        if(!resourcesText.isEmpty()) {
+            String[] resourceArray = resourcesText.split(",");
+            for (int i = 0; i < resourceArray.length; i++) {
+                resources.add(resourceArray[i].trim());
+            }
         }
-    
+
+        boolean added = instructorService.addLesson(selectedCourse, id, title, content, resources);
+        if (added) {
+            JOptionPane.showMessageDialog(this, "Lesson added successfully!");
+            loadLessons(selectedCourse);
+            clearAddForm();
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to add lesson! Lesson ID might already exist.");
+        }
+    } catch (NumberFormatException ex) {
+        JOptionPane.showMessageDialog(this, "Please enter valid lesson ID!");
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Invalid input!");
+    }
+
      }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-        if (selectedLesson == null) return;
-        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure?", "Delete Lesson", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            instructorService.deleteLesson(selectedCourse, selectedLesson.getLessonId());
+     if (selectedLesson == null || selectedCourse == null) {
+        JOptionPane.showMessageDialog(this, "Please select a lesson to delete!");
+        return;
+    }
+    int confirm = JOptionPane.showConfirmDialog(this, "Are you sure?", "Delete Lesson", JOptionPane.YES_NO_OPTION);
+    if (confirm == JOptionPane.YES_OPTION) {
+        boolean deleted = instructorService.deleteLesson(selectedCourse, selectedLesson.getLessonId());
+        if (deleted) {
+            JOptionPane.showMessageDialog(this, "Lesson deleted successfully!");
             loadLessons(selectedCourse);
+            clearUpdateForm();
+            selectedLesson = null;
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to delete lesson!");
+        }                                 
         }    }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void tfContentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfContentActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_tfContentActionPerformed
 
-     private void addListeners() {
-        coursesTable.getSelectionModel().addListSelectionListener(e -> {
-            int row = coursesTable.getSelectedRow();
-            if (row >= 0) {
-                int courseId = (int) coursesTable.getValueAt(row, 0);
-                selectedCourse = instructorService.getCourseById(courseId);
-                loadLessons(selectedCourse);
+private void addListeners() {
+    coursesListener = new javax.swing.event.ListSelectionListener() {
+        public void valueChanged(javax.swing.event.ListSelectionEvent e) {
+            if (!e.getValueIsAdjusting()) {
+                int row = coursesTable.getSelectedRow();
+                if (row >= 0) {
+                    int courseId = (int) coursesTable.getValueAt(row, 0);
+                    selectedCourse = instructorService.getCourseById(courseId);
+                    loadLessons(selectedCourse);
+                }
             }
-        });
+        }
+    };
+    coursesTable.getSelectionModel().addListSelectionListener(coursesListener);
 
-        lessonsTable.getSelectionModel().addListSelectionListener(e -> {
-            int row = lessonsTable.getSelectedRow();
-            if (row >= 0 && selectedCourse != null) {
-                int lessonId = (int) lessonsTable.getValueAt(row, 0);
-                selectedLesson = selectedCourse.getLessonById(lessonId);
-                tfuLessonId.setText(String.valueOf(selectedLesson.getLessonId()));
-                tfuTitle.setText(selectedLesson.getTitle());
-                tfuContent.setText(selectedLesson.getContent());
-                tfuResources.setText(String.join(",", selectedLesson.getResources()));
+    lessonsListener = new javax.swing.event.ListSelectionListener() {
+        public void valueChanged(javax.swing.event.ListSelectionEvent e) {
+            if (!e.getValueIsAdjusting()) {
+                int row = lessonsTable.getSelectedRow();
+                if (row >= 0 && selectedCourse != null) {
+                    int lessonId = (int) lessonsTable.getValueAt(row, 0);
+                    selectedLesson = selectedCourse.getLessonById(lessonId);
+                    if (selectedLesson != null) {
+                        tfuLessonId.setText(String.valueOf(selectedLesson.getLessonId()));
+                        tfuTitle.setText(selectedLesson.getTitle());
+                        tfuContent.setText(selectedLesson.getContent());
+                        tfuResources.setText(String.join(",", selectedLesson.getResources()));
+                    }
+                }
             }
-        });
-    }
+        }
+    };
+    lessonsTable.getSelectionModel().addListSelectionListener(lessonsListener);
+}
 
-
-
-    private void loadCourses() {
-        DefaultTableModel model = (DefaultTableModel) coursesTable.getModel();
-        model.setRowCount(0);
-        for (int courseId : instructorService.getCreatedCoursesIds()) {
-            Course c = instructorService.getCourseById(courseId);
-            model.addRow(new Object[]{c.getCourseId(), c.getTitle(), c.getDescription(), c.getInstructorId()});
+private void loadCourses() {
+    DefaultTableModel model = (DefaultTableModel) coursesTable.getModel();
+    model.setRowCount(0);
+    ArrayList<Integer> courseIds = instructorService.getCreatedCoursesIds();
+    if (courseIds != null) {
+        for (int i = 0; i < courseIds.size(); i++) {
+            Course c = instructorService.getCourseById(courseIds.get(i));
+            if (c != null) {
+                model.addRow(new Object[]{c.getCourseId(), c.getTitle(), c.getDescription(), c.getInstructorId()});
+            }
         }
     }
+}
 
-    private void loadLessons(Course course) {
-        if (course == null) return;
-        DefaultTableModel model = (DefaultTableModel) lessonsTable.getModel();
-        model.setRowCount(0);
-        for (Lesson l : instructorService.getLessons(course)) {
+private void loadLessons(Course course) {
+    if (course == null) return;
+    DefaultTableModel model = (DefaultTableModel) lessonsTable.getModel();
+    model.setRowCount(0);
+    ArrayList<Lesson> lessons = instructorService.getLessons(course);
+    if (lessons != null) {
+        for (int i = 0; i < lessons.size(); i++) {
+            Lesson l = lessons.get(i);
             model.addRow(new Object[]{l.getLessonId(), l.getTitle(), l.getContent(), String.join(",", l.getResources())});
         }
     }
+}
+
+private void clearAddForm() {
+    tfLessonId.setText("");
+    tfTitle.setText("");
+    tfContent.setText("");
+    tfResources.setText("");
+}
+
+private void clearUpdateForm() {
+    tfuLessonId.setText("");
+    tfuTitle.setText("");
+    tfuContent.setText("");
+    tfuResources.setText("");
+}
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
     private javax.swing.JButton btnDelete;
