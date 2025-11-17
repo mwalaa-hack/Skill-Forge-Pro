@@ -9,6 +9,7 @@ import Backend.Database.StudentDatabase;
 import Backend.Models.Course;
 import Backend.Models.Instructor;
 import Backend.Models.Lesson;
+import Backend.Models.Student;
 
 /**
  *
@@ -46,5 +47,16 @@ public class CourseService {
             System.out.println("Successfully fetched lesson " + l.getTitle());
         }
         return l;
+    }
+    
+    public Student getStudentById(int studentid){
+        Student s = students.getStudentById(studentid);
+        if(s == null){
+            System.out.println("Couldn't find student!");
+        }
+        else{
+           System.out.println("Successfully fetched student " + s.getUsername()); 
+        }
+        return s;
     }
 }

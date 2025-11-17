@@ -5,8 +5,12 @@
 package Frontend;
 
 import Backend.Models.Course;
+import Backend.Models.Instructor;
 import Backend.Models.Student;
 import Backend.Services.CourseService;
+import Backend.Services.InstructorService;
+import java.util.ArrayList;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -21,8 +25,10 @@ public class ManageCourse extends javax.swing.JPanel {
 
     private Course selectedCourse;
     private CourseService courseService;
+    private InstructorService instructorService;
 
-    public ManageCourse() {
+    public ManageCourse(Instructor instructor) {
+        instructorService = new InstructorService(instructor);
         initComponents();
         loadCourses();  
         addListeners(); 
@@ -380,9 +386,9 @@ public class ManageCourse extends javax.swing.JPanel {
         DefaultTableModel model = (DefaultTableModel) courseTable.getModel();
         model.setRowCount(0);
 
-        // Read courses from file (for demo, use hard-coded or implement a CourseDatabase read method)
-        List<Course> courses = Course.readAllCourses(); // implement this static method in Course class
-        for (Course c : courses) {
+        ArrayList<Integer> coursesIds = instructorService.getCreatedCoursesIds(); 
+        for (int id : coursesIds) {
+            Course c = instructorService.getCourseById(id);
             model.addRow(new Object[]{
                     c.getCourseId(),
                     c.getTitle(),
@@ -396,13 +402,14 @@ public class ManageCourse extends javax.swing.JPanel {
         DefaultTableModel model = (DefaultTableModel) studentsTable.getModel();
         model.setRowCount(0);
 
-        // Use CourseService method to get enrolled students
-        List<Student> students = courseService.getStudentsEnrolled(course.getCourseId());
-        for (Student s : students) {
+       
+        ArrayList<Integer> studentsIds = course.getStudentIds();
+        for (int id : studentsIds) {
+            Student s = courseService.getStudentById(id);
             model.addRow(new Object[]{
                     s.getUserId(),
                     s.getUsername(),
-                    s.getProgress()
+                    s.getCompletedLessonsByCourseId(id).size()/course.getLessons().size()*100
             });
         }
     }
