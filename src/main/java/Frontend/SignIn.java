@@ -100,7 +100,7 @@ try {
     String email = Email.getText() != null ? Email.getText().trim() : "";
     String password = Password.getText() != null ? Password.getText() : "";
 
-    // Validate email
+  
     if (email.isEmpty()) throw new Exception("Email cannot be empty");
     int atPos = email.indexOf("@");
     int dotPos = email.lastIndexOf(".");
@@ -108,15 +108,14 @@ try {
         throw new Exception("Invalid email format");
     }
 
-    // Validate password
     if (password.length() < 4) throw new Exception("Password too short (min 4 characters)");
 
-    // Validate role selection
+
     if (role == null || role.isEmpty()) throw new Exception("Role not selected");
 
     AuthService auth = new AuthService();
 
-    // Instructor login
+
     if (role.equalsIgnoreCase("Instructor")) {
         Instructor instructor = auth.loginInstructor(email, password);
         if (instructor == null) {
@@ -128,11 +127,9 @@ try {
         Email.setText("");
         Password.setText("");
 
-        // Close login 
+
         JFrame parentFrame = (JFrame) javax.swing.SwingUtilities.getWindowAncestor(this);
         if (parentFrame != null) parentFrame.dispose();
-
-        // Open Instructor Dashboard
         JFrame dash = new JFrame("Instructor Dashboard");
         dash.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         dash.getContentPane().add(new InstructorDashboard(instructor));
@@ -142,7 +139,7 @@ try {
         return;
     }
 
-    // Student login
+    
     if (role.equalsIgnoreCase("Student")) {
         Student student = auth.loginStudent(email, password);
         if (student == null) {
@@ -154,11 +151,10 @@ try {
         Email.setText("");
         Password.setText("");
 
-        // Close login window
         JFrame parentFrame = (JFrame) javax.swing.SwingUtilities.getWindowAncestor(this);
         if (parentFrame != null) parentFrame.dispose();
 
-        // Open Student Dashboard
+   
         JFrame dash = new JFrame("Student Dashboard");
         dash.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         dash.getContentPane().add(new StudentDashboard(student));

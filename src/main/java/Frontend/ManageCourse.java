@@ -361,22 +361,18 @@ public class ManageCourse extends javax.swing.JPanel {
         courseTable.getSelectionModel().addListSelectionListener(e -> {
             int row = courseTable.getSelectedRow();
             if (row >= 0) {
-                // Fetch selected course info from table
                 int courseId = (int) courseTable.getValueAt(row, 0);
                 String title = (String) courseTable.getValueAt(row, 1);
                 String desc = (String) courseTable.getValueAt(row, 2);
                 int instructorId = (int) courseTable.getValueAt(row, 3);
 
-                // Create course object and service for this course
                 selectedCourse = new Course(courseId, title, desc, instructorId);
                 courseService = new CourseService(selectedCourse);
 
-                // Fill update text fields
                 tfuCourseId.setText(String.valueOf(selectedCourse.getCourseId()));
                 tfuTitle.setText(selectedCourse.getTitle());
                 tfuDescription.setText(selectedCourse.getDescription());
 
-                // Load students enrolled in this course
                 loadStudents(selectedCourse);
             }
         });

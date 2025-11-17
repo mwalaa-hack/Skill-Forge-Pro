@@ -11,7 +11,7 @@ public class Lesson implements Info {
     private int lessonId;
     private String title;
     private String content;
-    private List<String> resources; // Use interface type List
+    private List<String> resources; 
 
     public Lesson(int lessonId, String title, String content, List<String> resources) {
         setLessonId(lessonId);

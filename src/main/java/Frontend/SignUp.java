@@ -132,7 +132,7 @@ this.setPreferredSize(new java.awt.Dimension(600, 500));
         String password = Password.getText();
 
 
-        // 1. Validate name/username
+      
         if (name.isEmpty()) {
             throw new Exception("Name cannot be empty");
         }
@@ -143,14 +143,13 @@ this.setPreferredSize(new java.awt.Dimension(600, 500));
             }
         }
 
-        // 2. Validate email
+   
         int atPos = email.indexOf("@");
         int dotPos = email.lastIndexOf(".");
         if (atPos <= 0 || dotPos <= atPos + 1 || dotPos == email.length() - 1) {
             throw new Exception("Invalid email format");
         }
 
-        // 3. Validate password
         if (password == null || password.length() < 4) {
             throw new Exception("Password too short (min 4 characters)");
         }
