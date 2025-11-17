@@ -379,8 +379,7 @@ public class ManageLessons extends javax.swing.JPanel {
         if (selectedLesson == null) return;
         int confirm = JOptionPane.showConfirmDialog(this, "Are you sure?", "Delete Lesson", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
-            instructorService.deleteLesson(selectedCourse, selectedLesson.getLessonId(),
-                    selectedLesson.getTitle(), selectedLesson.getContent());
+            instructorService.deleteLesson(selectedCourse, selectedLesson.getLessonId());
             loadLessons(selectedCourse);
         }    }//GEN-LAST:event_btnDeleteActionPerformed
 

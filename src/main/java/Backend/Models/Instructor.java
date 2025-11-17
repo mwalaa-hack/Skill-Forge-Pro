@@ -11,6 +11,7 @@ import java.util.ArrayList;
 public class Instructor extends User {
 
     private ArrayList<Integer> createdCourseIds;
+
     public Instructor(int userId, String username, String email, String password) {
         super(userId, username, email, password, "instructor");
         this.createdCourseIds = new ArrayList<>();
@@ -27,41 +28,23 @@ public class Instructor extends User {
         }
     }
 
-    
-        @Override
-       public String getRole() {
+    @Override
+    public String getRole() {
         return "instructor";
     }
- 
-    
-    
+
     public boolean addCourseId(int courseId) {
-        for (int i = 0; i < createdCourseIds.size(); i++) {
-            if (createdCourseIds.get(i) == courseId) {
-                return false;
-            }
-        }
+        if (createdCourseIds.contains(courseId)) return false;
         createdCourseIds.add(courseId);
         return true;
     }
 
     public boolean removeCourseId(int courseId) {
-        for (int i = 0; i < createdCourseIds.size(); i++) {
-            if (createdCourseIds.get(i) == courseId) {
-                createdCourseIds.remove(i);
-                return true;
-            }
-        }
-        return false;
+        return createdCourseIds.remove((Integer) courseId);
     }
 
     public boolean ownsCourse(int courseId) {
-        for (int i = 0; i < createdCourseIds.size(); i++) {
-            if (createdCourseIds.get(i) == courseId) {
-                return true;
-            }
-        }
-        return false;
+        return createdCourseIds.contains(courseId);
     }
 
     public ArrayList<Integer> getCreatedCourseIds() {
@@ -72,9 +55,7 @@ public class Instructor extends User {
     public JSONObject toJSON() {
         JSONObject j = super.toJSON();
         JSONArray arr = new JSONArray();
-        for (int i = 0; i < createdCourseIds.size(); i++) {
-            arr.put(createdCourseIds.get(i));
-        }
+        for (int id : createdCourseIds) arr.put(id);
         j.put("createdCourses", arr);
         return j;
     }

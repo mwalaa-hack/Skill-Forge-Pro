@@ -12,6 +12,7 @@ import org.json.JSONObject;
  *
  * @author pola-nasser13
  */
+
 public class InstructorDatabase extends Database<Instructor> {
 
     public InstructorDatabase(String filename) {
@@ -28,11 +29,8 @@ public class InstructorDatabase extends Database<Instructor> {
         try {
             int userId = j.getInt("userId");
             String email = j.getString("email");
-            for (int i = 0; i < records.size(); i++) {
-                Instructor ins = records.get(i);
-                if (ins.getUserId() == userId || ins.getEmail().equalsIgnoreCase(email)) {
-                    return false;
-                }
+            for (Instructor ins : records) {
+                if (ins.getUserId() == userId || ins.getEmail().equalsIgnoreCase(email)) return false;
             }
             Instructor newIns = createRecordFrom(j);
             records.add(newIns);
@@ -45,33 +43,22 @@ public class InstructorDatabase extends Database<Instructor> {
     }
 
     public Instructor getInstructorById(int instructorId) {
-        for (int i = 0; i < records.size(); i++) {
-            Instructor ins = records.get(i);
-            if (ins.getUserId() == instructorId) {
-                if ("instructor".equalsIgnoreCase(ins.getRole())) { 
+        for (Instructor ins : records) {
+            if (ins.getUserId() == instructorId && "instructor".equalsIgnoreCase(ins.getRole())) {
                 return ins;
-            } else {
-                return null; 
             }
         }
+        return null;
     }
-    return null;
-}
 
-public Instructor getInstructorByEmail(String email) {
-    for (int i = 0; i < records.size(); i++) {
-        Instructor ins = records.get(i);
-        if (ins.getEmail().equalsIgnoreCase(email)) {
-            if ("instructor".equalsIgnoreCase(ins.getRole())) { 
+    public Instructor getInstructorByEmail(String email) {
+        for (Instructor ins : records) {
+            if (ins.getEmail().equalsIgnoreCase(email) && "instructor".equalsIgnoreCase(ins.getRole())) {
                 return ins;
-            } else {
-                return null; 
             }
         }
+        return null;
     }
-    return null;
-}
-
 
     public boolean contains(int instructorId) {
         return getInstructorById(instructorId) != null;
@@ -79,33 +66,23 @@ public Instructor getInstructorByEmail(String email) {
 
     public boolean addCourseIdToInstructor(int instructorId, int courseId) {
         Instructor ins = getInstructorById(instructorId);
-        if (ins == null) {
-            return false;
-        }
+        if (ins == null) return false;
         boolean added = ins.addCourseId(courseId);
-        if (added) {
-            saveToFile();
-        }
+        if (added) saveToFile();
         return added;
     }
 
     public boolean removeCourseIdFromInstructor(int instructorId, int courseId) {
         Instructor ins = getInstructorById(instructorId);
-        if (ins == null) {
-            return false;
-        }
+        if (ins == null) return false;
         boolean removed = ins.removeCourseId(courseId);
-        if (removed) {
-            saveToFile();
-        }
+        if (removed) saveToFile();
         return removed;
     }
 
     public ArrayList<Integer> getInstructorCourseIds(int instructorId) {
         Instructor ins = getInstructorById(instructorId);
-        if (ins == null) {
-            return new ArrayList<Integer>();
-        }
+        if (ins == null) return new ArrayList<>();
         return ins.getCreatedCourseIds();
     }
 }

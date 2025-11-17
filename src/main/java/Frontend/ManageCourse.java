@@ -2,7 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
-package courses;
+package Frontend;
+
+import Backend.Models.Course;
+import Backend.Models.Student;
+import Backend.Services.CourseService;
 
 /**
  *
@@ -13,8 +17,15 @@ public class ManageCourse extends javax.swing.JPanel {
     /**
      * Creates new form ManageCourse
      */
+
+
+    private Course selectedCourse;
+    private CourseService courseService;
+
     public ManageCourse() {
         initComponents();
+        loadCourses();  
+        addListeners(); 
     }
 
     /**
@@ -340,7 +351,61 @@ public class ManageCourse extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_btnUpdateActionPerformed
 
+    private void addListeners() {
+        courseTable.getSelectionModel().addListSelectionListener(e -> {
+            int row = courseTable.getSelectedRow();
+            if (row >= 0) {
+                // Fetch selected course info from table
+                int courseId = (int) courseTable.getValueAt(row, 0);
+                String title = (String) courseTable.getValueAt(row, 1);
+                String desc = (String) courseTable.getValueAt(row, 2);
+                int instructorId = (int) courseTable.getValueAt(row, 3);
 
+                // Create course object and service for this course
+                selectedCourse = new Course(courseId, title, desc, instructorId);
+                courseService = new CourseService(selectedCourse);
+
+                // Fill update text fields
+                tfuCourseId.setText(String.valueOf(selectedCourse.getCourseId()));
+                tfuTitle.setText(selectedCourse.getTitle());
+                tfuDescription.setText(selectedCourse.getDescription());
+
+                // Load students enrolled in this course
+                loadStudents(selectedCourse);
+            }
+        });
+    }
+    
+        private void loadCourses() {
+        DefaultTableModel model = (DefaultTableModel) courseTable.getModel();
+        model.setRowCount(0);
+
+        // Read courses from file (for demo, use hard-coded or implement a CourseDatabase read method)
+        List<Course> courses = Course.readAllCourses(); // implement this static method in Course class
+        for (Course c : courses) {
+            model.addRow(new Object[]{
+                    c.getCourseId(),
+                    c.getTitle(),
+                    c.getDescription(),
+                    c.getInstructorId()
+            });
+        }
+    }
+        
+            private void loadStudents(Course course) {
+        DefaultTableModel model = (DefaultTableModel) studentsTable.getModel();
+        model.setRowCount(0);
+
+        // Use CourseService method to get enrolled students
+        List<Student> students = courseService.getStudentsEnrolled(course.getCourseId());
+        for (Student s : students) {
+            model.addRow(new Object[]{
+                    s.getUserId(),
+                    s.getUsername(),
+                    s.getProgress()
+            });
+        }
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
     private javax.swing.JButton btnDelete;

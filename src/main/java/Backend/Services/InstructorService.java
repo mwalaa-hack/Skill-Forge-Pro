@@ -18,7 +18,7 @@ public class InstructorService {
         this.instructor = instructor;
         courses = new CourseDatabase("courses.json");
         courses.readFromFile();
-        instructors = new InstructorDatabase("instructors.json"); // make sure the filename matches
+        instructors = new InstructorDatabase("instructors.json");
         instructors.readFromFile();
     }
 
@@ -27,8 +27,9 @@ public class InstructorService {
         boolean addStatus = courses.insertRecord(newCourse.toJSON());
         if (addStatus) {
             System.out.println("Added Course successfully!");
-            instructor.addCourseId(courseId);
-            save(); // persist changes
+            
+            instructors.addCourseIdToInstructor(instructor.getUserId(), courseId);
+            save();
         }
         return addStatus;
     }
@@ -38,17 +39,18 @@ public class InstructorService {
         if (updateStatus) {
             System.out.println("Course updated successfully!");
             save();
-            return true;
+        } else {
+            System.out.println("Failed to edit! Course not found.");
         }
-        System.out.println("Failed to edit! Course not found.");
-        return false;
+        return updateStatus;
     }
 
     public boolean deleteCourse(Course c) {
         boolean deleteStatus = courses.deleteCourse(c.getCourseId());
         if (deleteStatus) {
             System.out.println("Deleted Course successfully!");
-            instructor.getCreatedCourseIds().remove((Integer)c.getCourseId());
+            
+            instructors.removeCourseIdFromInstructor(instructor.getUserId(), c.getCourseId());
             save();
         }
         return deleteStatus;
@@ -56,10 +58,10 @@ public class InstructorService {
 
     public Course getCourseById(int id) {
         Course c = courses.getCourseById(id);
-        if (c == null) {
-            System.out.println("Course not found.");
-        } else {
+        if (c != null) {
             System.out.println("Course found successfully!");
+        } else {
+            System.out.println("Course not found.");
         }
         return c;
     }
@@ -74,7 +76,7 @@ public class InstructorService {
         return addStatus;
     }
 
-    public boolean deleteLesson(Course c, int lessonId, String title, String content) {
+    public boolean deleteLesson(Course c, int lessonId) {
         boolean deleteStatus = courses.deleteLesson(c.getCourseId(), lessonId);
         if (deleteStatus) {
             System.out.println("Deleted Lesson successfully!");
@@ -88,10 +90,10 @@ public class InstructorService {
         if (updateStatus) {
             System.out.println("Lesson updated successfully!");
             save();
-            return true;
+        } else {
+            System.out.println("Failed to edit! Lesson not found.");
         }
-        System.out.println("Failed to edit! Lesson not found.");
-        return false;
+        return updateStatus;
     }
 
     public ArrayList<Integer> getEnrolledStudentsIds(Course c) {
@@ -103,7 +105,12 @@ public class InstructorService {
     }
 
     public ArrayList<Integer> getCreatedCoursesIds() {
-        return instructor.getCreatedCourseIds();
+
+        Instructor updatedInstructor = instructors.getInstructorById(instructor.getUserId());
+        if (updatedInstructor != null) {
+            return updatedInstructor.getCreatedCourseIds();
+        }
+        return new ArrayList<>();
     }
 
     private void save() {
@@ -113,5 +120,4 @@ public class InstructorService {
 
     public void logout() {
         save();
-    }
-}
+    }}
