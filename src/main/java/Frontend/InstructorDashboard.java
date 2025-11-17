@@ -4,7 +4,9 @@
  */
 package Frontend;
 
+import Backend.Models.Instructor;
 import Backend.Models.User;
+import javax.swing.JFrame;
 
 /**
  *
@@ -12,10 +14,11 @@ import Backend.Models.User;
  */
 public class InstructorDashboard extends javax.swing.JPanel {
 
-    private User instructor;
 
-    public InstructorDashboard(User instructor) {
-        this.instructor = instructor; 
+    private Instructor instructor; // store the logged-in instructor
+
+    public InstructorDashboard(Instructor instructor) {
+        this.instructor = instructor; // store user info
         initComponents();
 
         jLabel1.setText("Instructor Dashboard");
@@ -85,12 +88,25 @@ public class InstructorDashboard extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnManageCoursesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnManageCoursesActionPerformed
+//        JFrame parentFrame = (JFrame) javax.swing.SwingUtilities.getWindowAncestor(this);
+//        parentFrame.dispose();
 
-        
+        JFrame dash = new JFrame("Manage Courses");
+        dash.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        dash.getContentPane().add(new ManageCourse(instructor));
+        dash.pack();
+        dash.setLocationRelativeTo(null);
+        dash.setVisible(true);
+        return;
     }//GEN-LAST:event_btnManageCoursesActionPerformed
 
     private void btnManageLessonsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnManageLessonsActionPerformed
-        // TODO add your handling code here:
+        JFrame dash = new JFrame("Manage Lessons");
+        dash.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        dash.getContentPane().add(new ManageLessons(instructor));
+        dash.pack();
+        dash.setLocationRelativeTo(null);
+        dash.setVisible(true);
     }//GEN-LAST:event_btnManageLessonsActionPerformed
 
 
