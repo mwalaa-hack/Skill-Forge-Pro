@@ -115,7 +115,7 @@ this.setPreferredSize(new java.awt.Dimension(600, 300));
         AuthService auth = new AuthService();
 
         if (role.equalsIgnoreCase("Instructor")) {
-            Instructor instructor = auth.loginInstructor(email, password);
+            Instructor instructor = (Instructor)auth.login(email, password,role);
             if (instructor == null) {
                 JOptionPane.showMessageDialog(this, "Invalid email or password!");
                 return;
@@ -138,7 +138,7 @@ this.setPreferredSize(new java.awt.Dimension(600, 300));
         }
 
         if (role.equalsIgnoreCase("Student")) {
-            Student student = auth.loginStudent(email, password);
+            Student student = (Student)auth.login(email, password, role);
             if (student == null) {
                 JOptionPane.showMessageDialog(this, "Invalid email or password!");
                 return;
