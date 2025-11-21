@@ -9,6 +9,7 @@ package Backend.Database;
  * @author pola-nasser13
  */
 
+import Backend.Models.Admin;
 import Backend.Models.Student;
 import Backend.Models.Instructor;
 import Backend.Models.User;
@@ -26,12 +27,16 @@ public class UserDatabase extends Database<User> {
     @Override
     public User createRecordFrom(JSONObject j) {
         String role = j.getString("role");
-        if ("student".equalsIgnoreCase(role)) {
-            return new Student(j);
-        } else if ("instructor".equalsIgnoreCase(role)) {
-            return new Instructor(j);
+        switch (role.toLowerCase()) {
+            case "student":
+                return new Student(j);
+            case "instructor":
+                return new Instructor(j);
+            case "admin":
+                return new Admin(j);
+            default:
+                return null;
         }
-        return null;
     }
 
     @Override
@@ -59,41 +64,21 @@ public class UserDatabase extends Database<User> {
         }
     }
 
-    public Student getStudentById(int studentId) {
+    public User getUserByEmail(String email, String role) {
         for (int i = 0; i < records.size(); i++) {
             User user = records.get(i);
-            if (user.getUserId() == studentId && user instanceof Student) {
-                return (Student) user;
+            if (user.getEmail().equalsIgnoreCase(email) && user.getRole().equalsIgnoreCase(role)) {
+                return user;
             }
         }
         return null;
     }
 
-    public Instructor getInstructorById(int instructorId) {
+    public User getUserById(int userId, String role) {
         for (int i = 0; i < records.size(); i++) {
             User user = records.get(i);
-            if (user.getUserId() == instructorId && user instanceof Instructor) {
-                return (Instructor) user;
-            }
-        }
-        return null;
-    }
-
-    public Student getStudentByEmail(String email) {
-        for (int i = 0; i < records.size(); i++) {
-            User user = records.get(i);
-            if (user.getEmail().equalsIgnoreCase(email) && user instanceof Student) {
-                return (Student) user;
-            }
-        }
-        return null;
-    }
-
-    public Instructor getInstructorByEmail(String email) {
-        for (int i = 0; i < records.size(); i++) {
-            User user = records.get(i);
-            if (user.getEmail().equalsIgnoreCase(email) && user instanceof Instructor) {
-                return (Instructor) user;
+            if (user.getUserId() == userId && user.getRole().equalsIgnoreCase(role)) {
+                return user;
             }
         }
         return null;

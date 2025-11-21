@@ -12,17 +12,24 @@ import org.json.JSONObject;
 public class Student extends User {
     private ArrayList<Integer> enrolledCourseIds;
     private HashMap<Integer, ArrayList<Integer>> progress;
+    private HashMap<String, Double> quizScores;
+    private ArrayList<String> certificates;
 
     public Student(int userId, String username, String email, String password) {
         super(userId, username, email, password, "student");
         this.enrolledCourseIds = new ArrayList<>();
         this.progress = new HashMap<>();
+        this.quizScores = new HashMap<>();
+        this.certificates = new ArrayList<>();
     }
 
     public Student(JSONObject j) {
         super(j);
         this.enrolledCourseIds = new ArrayList<>();
         this.progress = new HashMap<>();
+        this.quizScores = new HashMap<>();
+        this.certificates = new ArrayList<>();
+        
         JSONArray arr = j.optJSONArray("enrolledCourses");
         if (arr != null) {
             for (int i = 0; i < arr.length(); i++) {
@@ -35,6 +42,20 @@ public class Student extends User {
                     for (int k = 0; k < comp.length(); k++) completed.add(comp.getInt(k));
                 }
                 progress.put(cid, completed);
+            }
+        }
+        
+        JSONObject quizObj = j.optJSONObject("quizScores");
+        if (quizObj != null) {
+            for (String key : quizObj.keySet()) {
+                quizScores.put(key, quizObj.getDouble(key));
+            }
+        }
+        
+        JSONArray certArr = j.optJSONArray("certificates");
+        if (certArr != null) {
+            for (int i = 0; i < certArr.length(); i++) {
+                certificates.add(certArr.getString(i));
             }
         }
     }
@@ -52,30 +73,8 @@ public class Student extends User {
         return "student";
     }
  
-    
-
-    public boolean dropCourseById(int courseId) {
-        boolean removed = false;
-        for (int i = 0; i < enrolledCourseIds.size(); i++) {
-            if (enrolledCourseIds.get(i) == courseId) {
-                enrolledCourseIds.remove(i);
-                removed = true;
-                break;
-            }
-        }
-        progress.remove(courseId);
-        return removed;
-    }
 
     public boolean markLessonCompletedById(int courseId, int lessonId) {
-        boolean enrolled = false;
-        for (int i = 0; i < enrolledCourseIds.size(); i++) {
-            if (enrolledCourseIds.get(i) == courseId) {
-                enrolled = true;
-                break;
-            }
-        }
-        if (!enrolled) return false;
         ArrayList<Integer> completed = progress.get(courseId);
         if (completed == null) {
             completed = new ArrayList<Integer>();
@@ -96,6 +95,36 @@ public class Student extends User {
         return enrolledCourseIds;
     }
 
+    public void setQuizScore(int courseId, int lessonId, double score) {
+        String key = courseId + "_" + lessonId;
+        quizScores.put(key, score);
+        if (score >= 50) {
+            markLessonCompletedById(courseId, lessonId);
+        }
+    }
+    
+    public Double getQuizScore(int courseId, int lessonId) {
+        String key = courseId + "&" + lessonId;
+        return quizScores.get(key);
+    }
+    
+    public boolean hasPassedQuiz(int courseId, int lessonId) {
+        Double score = getQuizScore(courseId, lessonId);
+        return score != null && score >= 70;
+    }
+    
+    public void addCertificate(String certId) {
+        certificates.add(certId);
+    }
+    
+    public ArrayList<String> getCertificates() {
+        return certificates;
+    }
+    
+    public boolean hasCertificate(String certId) {
+        return certificates.contains(certId);
+    }
+
     @Override
     public JSONObject toJSON() {
         JSONObject j = super.toJSON();
@@ -113,6 +142,19 @@ public class Student extends User {
             arr.put(cobj);
         }
         j.put("enrolledCourses", arr);
+        
+        JSONObject quizObj = new JSONObject();
+        for (String key : quizScores.keySet()) {
+            quizObj.put(key, quizScores.get(key));
+        }
+        j.put("quizScores", quizObj);
+        
+        JSONArray certArr = new JSONArray();
+        for (int i = 0; i < certificates.size(); i++) {
+            certArr.put(certificates.get(i));
+        }
+        j.put("certificates", certArr);
+        
         return j;
     }
 }

@@ -15,13 +15,7 @@ public class AuthService {
     }
 
     public User login(String email, String enteredPassword, String role){
-        User user = null;
-        if("student".equalsIgnoreCase(role)){
-            user = userDB.getStudentByEmail(email);
-        }
-        else if("instructor".equalsIgnoreCase(role)){
-            user = userDB.getInstructorByEmail(email);
-        }
+        User user = userDB.getUserByEmail(email, role);
         if (user != null && user.verifyPassword(enteredPassword)) {
             return user;
         }
@@ -35,6 +29,9 @@ public class AuthService {
         } else if ("instructor".equalsIgnoreCase(role)) {
             Instructor instructor = new Instructor(id, username, email, password);
             return userDB.insertRecord(instructor.toJSON());
+        } else if ("admin".equalsIgnoreCase(role)) {
+            Admin admin = new Admin(id, username, email, password);
+            return userDB.insertRecord(admin.toJSON());
         }
         return false;
     }

@@ -39,6 +39,9 @@ public class CourseDatabase extends Database<Course> {
             if (!j.has("lessons")) {
                 j.put("lessons", new JSONArray());
             }
+            if (!j.has("approvalStatus")) {
+                j.put("approvalStatus", "PENDING");
+            }
             Course c = createRecordFrom(j);
             records.add(c);
             saveToFile();
@@ -47,7 +50,7 @@ public class CourseDatabase extends Database<Course> {
             return false;
         }
     }
-
+    
     public boolean updateCourseId(int oldCourseId, int newCourseId) {
         for (int i = 0; i < records.size(); i++) {
             if (records.get(i).getCourseId() == newCourseId) {
@@ -197,6 +200,42 @@ public class CourseDatabase extends Database<Course> {
         if (removed) {
             saveToFile();
             return true;
+        }
+        return false;
+    }
+
+   public ArrayList<Course> getCoursesByStatus(ApprovalStatus status) {
+        ArrayList<Course> result = new ArrayList<>();
+        for (int i = 0; i < records.size(); i++) {
+            Course course = records.get(i);
+            if (course.getApprovalStatus() == status) {
+                result.add(course);
+            }
+        }
+        return result;
+    }
+    
+    public ArrayList<Course> getPendingCourses() {
+        return getCoursesByStatus(ApprovalStatus.PENDING);
+    }
+    
+    public ArrayList<Course> getApprovedCourses() {
+        return getCoursesByStatus(ApprovalStatus.APPROVED);
+    }
+    
+    public ArrayList<Course> getRejectedCourses() {
+        return getCoursesByStatus(ApprovalStatus.REJECTED);
+    }
+    
+    public ArrayList<Course> getAvailableCoursesForStudents() {
+        return getApprovedCourses();
+    }
+    
+    public boolean updateCourseStatus(int courseId, ApprovalStatus status) {
+        Course course = getCourseById(courseId);
+        if (course != null) {
+            course.setApprovalStatus(status);
+            return updateCourse(course);
         }
         return false;
     }
