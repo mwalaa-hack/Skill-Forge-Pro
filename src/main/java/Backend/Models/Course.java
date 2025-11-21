@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+
 /**
  *
  * @author Pc
@@ -21,6 +22,7 @@ public class Course implements Info {
     private int instructorId;
     private ArrayList<Lesson> lessons;
     private ArrayList<Integer> studentIds;
+    private ApprovalStatus approvalStatus;
 
     public Course(int courseId, String title, String description, int instructorId) {
         setCourseId(courseId);
@@ -29,6 +31,7 @@ public class Course implements Info {
         setInstructorId(instructorId);
         this.lessons = new ArrayList<>();
         this.studentIds = new ArrayList<>();
+        setApprovalStatus(ApprovalStatus.PENDING);
     }
 
     public Course(JSONObject json) {
@@ -36,6 +39,7 @@ public class Course implements Info {
         this.title = json.getString("title");
         this.description = json.getString("description");
         this.instructorId = json.getInt("instructorId");
+        this.approvalStatus= ApprovalStatus.valueOf(json.optString("approvalStatus","PENDING"));
         this.lessons = new ArrayList<>();
         JSONArray lessonArr = json.optJSONArray("lessons");
         if (lessonArr != null) {
@@ -72,6 +76,9 @@ public class Course implements Info {
             throw new IllegalArgumentException("instructorId must be > 0");
         }
         this.instructorId = instructorId;
+    }
+    public void setApprovalStatus(ApprovalStatus status){
+    this.approvalStatus=status;
     }
 
     public boolean addLesson(Lesson lesson) {
@@ -126,13 +133,13 @@ public class Course implements Info {
         return removed;
     }
 
-    @Override
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
         obj.put("courseId", courseId);
         obj.put("title", title);
         obj.put("description", description);
         obj.put("instructorId", instructorId);
+        obj.put("approvalStatus", approvalStatus.toString());
         JSONArray lessonArr = new JSONArray();
         for (int i = 0; i < lessons.size(); i++) {
             lessonArr.put(lessons.get(i).toJSON());
@@ -152,6 +159,9 @@ public class Course implements Info {
 
     public String getTitle() {
         return title;
+    }
+    public ApprovalStatus getApprovalStatus(){
+        return approvalStatus;
     }
 
     public String getDescription() {
