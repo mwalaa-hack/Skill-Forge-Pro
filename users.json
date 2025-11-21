@@ -57,5 +57,51 @@
         "email": "w@gmail.com",
         "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
         "username": "ds"
+    },
+    {
+        "role": "student",
+        "enrolledCourses": [
+            {
+                "completedLessons": [],
+                "courseId": 77
+            },
+            {
+                "completedLessons": [],
+                "courseId": 3
+            },
+            {
+                "completedLessons": [],
+                "courseId": 121
+            },
+            {
+                "completedLessons": [],
+                "courseId": 1
+            }
+        ],
+        "userId": 5,
+        "email": "q@gmail.com",
+        "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+        "username": "q"
+    },
+    {
+        "role": "student",
+        "enrolledCourses": [],
+        "userId": 6,
+        "email": "ww@gmail.com",
+        "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+        "username": "w"
+    },
+    {
+        "role": "instructor",
+        "createdCourses": [
+            1,
+            121,
+            3,
+            77
+        ],
+        "userId": 7,
+        "email": "e@gmail.com",
+        "passwordHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+        "username": "e"
     }
 ]

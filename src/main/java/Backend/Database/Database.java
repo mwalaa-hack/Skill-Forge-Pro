@@ -17,6 +17,7 @@ import org.json.JSONObject;
  * @author pola-nasser13
  */
 public abstract class Database<D extends Info> {
+
     protected ArrayList<D> records;
     protected String filename;
 
@@ -38,16 +39,19 @@ public abstract class Database<D extends Info> {
                 saveToFile();
                 return;
             }
-            StringBuilder content = new StringBuilder();
+
             Scanner sc = new Scanner(file);
+            String content = "";
             while (sc.hasNextLine()) {
-                content.append(sc.nextLine());
+                content += sc.nextLine();
             }
             sc.close();
-            if (content.length() == 0) {
+
+            if (content.isEmpty()) {
                 return;
             }
-            JSONArray arr = new JSONArray(content.toString());
+
+            JSONArray arr = new JSONArray(content);
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
                 D rec = createRecordFrom(obj);
@@ -55,8 +59,8 @@ public abstract class Database<D extends Info> {
                     tempRecords.add(rec);
                 }
             }
+
         } catch (Exception e) {
-            System.out.println("Failed to read JSON: " + filename + " - " + e.getMessage());
             return;
         }
         records = tempRecords;

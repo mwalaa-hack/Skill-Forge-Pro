@@ -17,7 +17,7 @@ public class Admin extends User {
         super(j);
     }
     
-    
+   
     @Override
     public String getRole() {
         return "admin";
@@ -35,7 +35,7 @@ public class Admin extends User {
         course.addAudit("REJECTED: " + reason,this.getUserId(),Instant.now().toString());
     }
     
-    
+   
     @Override
     public JSONObject toJSON() {
         return super.toJSON();

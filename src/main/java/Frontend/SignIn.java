@@ -20,14 +20,13 @@ public class SignIn extends javax.swing.JPanel {
     /**
      * Creates new form SignIn
      */
-
     private String role;
 
     public SignIn(String role) {
         this.role = role;
         initComponents();
-        this.setSize(600, 500);       
-this.setPreferredSize(new java.awt.Dimension(600, 300));
+        this.setSize(600, 500);
+        this.setPreferredSize(new java.awt.Dimension(600, 300));
 
     }
 
@@ -97,77 +96,89 @@ this.setPreferredSize(new java.awt.Dimension(600, 300));
     }// </editor-fold>//GEN-END:initComponents
 
     private void SignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SignInActionPerformed
-    try {
-        String email = Email.getText() != null ? Email.getText().trim() : "";
-        String password = Password.getText() != null ? Password.getText() : "";
+        try {
+            String email = Email.getText();
+            String password = Password.getText();
 
-        if (email.isEmpty()) throw new Exception("Email cannot be empty");
-        int atPos = email.indexOf("@");
-        int dotPos = email.lastIndexOf(".");
-        if (atPos <= 0 || dotPos <= atPos + 1 || dotPos == email.length() - 1) {
-            throw new Exception("Invalid email format");
-        }
+            if (email != null) {
+                email = email.trim();
+            } else {
+                email = "";
+            }
 
-        if (password.length() < 4) throw new Exception("Password too short (min 4 characters)");
-
-        if (role == null || role.isEmpty()) throw new Exception("Role not selected");
-
-        AuthService auth = new AuthService();
-
-        if (role.equalsIgnoreCase("Instructor")) {
-            Instructor instructor = (Instructor)auth.login(email, password,role);
-            if (instructor == null) {
-                JOptionPane.showMessageDialog(this, "Invalid email or password!");
+            if (email.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Email cannot be empty");
                 return;
             }
 
-            JOptionPane.showMessageDialog(this, "Instructor logged in successfully!");
-            Email.setText("");
-            Password.setText("");
-
-            JFrame currentFrame = (JFrame) javax.swing.SwingUtilities.getWindowAncestor(this);
-            currentFrame.dispose();
-
-            JFrame dash = new JFrame("Instructor Dashboard");
-            dash.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            dash.getContentPane().add(new InstructorDashboard(instructor));
-            dash.pack();
-            dash.setLocationRelativeTo(null);
-            dash.setVisible(true);
-            return;
-        }
-
-        if (role.equalsIgnoreCase("Student")) {
-            Student student = (Student)auth.login(email, password, role);
-            if (student == null) {
-                JOptionPane.showMessageDialog(this, "Invalid email or password!");
+            if (!email.contains("@") || !email.contains(".")) {
+                JOptionPane.showMessageDialog(this, "Invalid email format");
                 return;
             }
 
-            JOptionPane.showMessageDialog(this, "Student logged in successfully!");
-            Email.setText("");
-            Password.setText("");
+            if (password == null || password.length() < 4) {
+                JOptionPane.showMessageDialog(this, "Password too short (min 4 characters)");
+                return;
+            }
 
-            JFrame currentFrame = (JFrame) javax.swing.SwingUtilities.getWindowAncestor(this);
-            currentFrame.dispose();
+            if (role == null || role.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Role not selected");
+                return;
+            }
 
-            JFrame dash = new JFrame("Student Dashboard");
-            dash.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            dash.getContentPane().add(new StudentDashboard(student));
-            dash.pack();
-            dash.setLocationRelativeTo(null);
-            dash.setVisible(true);
-            return;
+            AuthService auth = new AuthService();
+
+            if (role.equalsIgnoreCase("Instructor")) {
+                Instructor instructor = (Instructor) auth.login(email, password, role);
+                if (instructor == null) {
+                    JOptionPane.showMessageDialog(this, "Invalid email or password!");
+                    return;
+                }
+
+                JOptionPane.showMessageDialog(this, "Instructor logged in successfully!");
+                Email.setText("");
+                Password.setText("");
+
+                JFrame currentFrame = (JFrame) javax.swing.SwingUtilities.getWindowAncestor(this);
+                currentFrame.dispose();
+
+                JFrame dash = new JFrame("Instructor Dashboard");
+                dash.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                dash.getContentPane().add(new InstructorDashboard(instructor));
+                dash.pack();
+                dash.setLocationRelativeTo(null);
+                dash.setVisible(true);
+                return;
+            }
+
+            if (role.equalsIgnoreCase("Student")) {
+                Student student = (Student) auth.login(email, password, role);
+                if (student == null) {
+                    JOptionPane.showMessageDialog(this, "Invalid email or password!");
+                    return;
+                }
+
+                JOptionPane.showMessageDialog(this, "Student logged in successfully!");
+                Email.setText("");
+                Password.setText("");
+
+                JFrame currentFrame = (JFrame) javax.swing.SwingUtilities.getWindowAncestor(this);
+                currentFrame.dispose();
+
+                JFrame dash = new JFrame("Student Dashboard");
+                dash.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                dash.getContentPane().add(new StudentDashboard(student));
+                dash.pack();
+                dash.setLocationRelativeTo(null);
+                dash.setVisible(true);
+                return;
+            }
+
+            JOptionPane.showMessageDialog(this, "Invalid role selected!");
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
         }
-
-        JOptionPane.showMessageDialog(this, "Invalid role selected!");
-
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
-    }
-
-
-
     }//GEN-LAST:event_SignInActionPerformed
 
     private void EmailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EmailActionPerformed

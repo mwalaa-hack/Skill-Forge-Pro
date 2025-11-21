@@ -1,8 +1,61 @@
-[{
-    "description": "jkdnheiwjnedwk",
-    "students": [1],
-    "title": "Drawing 2",
-    "courseId": 12,
-    "instructorId": 4,
-    "lessons": []
-}]
+[
+    {
+        "description": "jkdnheiwjnedwk",
+        "students": [1],
+        "title": "Drawing 2",
+        "courseId": 12,
+        "instructorId": 4,
+        "lessons": []
+    },
+    {
+        "description": "wqw",
+        "students": [5],
+        "title": "wqw",
+        "courseId": 1,
+        "instructorId": 7,
+        "lessons": [
+            {
+                "lessonId": 55,
+                "resources": ["dsd"],
+                "title": "dsd",
+                "content": "sds"
+            },
+            {
+                "lessonId": 323,
+                "resources": ["dsd"],
+                "title": "dsd",
+                "content": "dsd"
+            },
+            {
+                "lessonId": 3233,
+                "resources": ["dsd"],
+                "title": "dsd",
+                "content": "dsd"
+            }
+        ]
+    },
+    {
+        "description": "sas",
+        "students": [5],
+        "title": "sas",
+        "courseId": 121,
+        "instructorId": 7,
+        "lessons": []
+    },
+    {
+        "description": "sas",
+        "students": [5],
+        "title": "sas",
+        "courseId": 3,
+        "instructorId": 7,
+        "lessons": []
+    },
+    {
+        "description": "sax",
+        "students": [5],
+        "title": "xsax",
+        "courseId": 77,
+        "instructorId": 7,
+        "lessons": []
+    }
+]

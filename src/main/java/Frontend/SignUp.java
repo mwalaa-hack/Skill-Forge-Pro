@@ -19,8 +19,8 @@ public class SignUp extends javax.swing.JPanel {
     public SignUp(String role) {
         this.role = role;
         initComponents();
-        this.setSize(600, 500);     
-this.setPreferredSize(new java.awt.Dimension(600, 500));
+        this.setSize(600, 500);
+        this.setPreferredSize(new java.awt.Dimension(600, 500));
     }
 
     /**
@@ -130,51 +130,65 @@ this.setPreferredSize(new java.awt.Dimension(600, 500));
     }// </editor-fold>//GEN-END:initComponents
 
     private void SignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SignUpActionPerformed
-       try {
-        int id = Integer.parseInt(Id.getText());
-        String name = Name.getText().trim();
-        String email = Email.getText().trim();
-        String password = Password.getText();
-
-        if (name.isEmpty()) {
-            throw new Exception("Name cannot be empty");
-        }
-        for (int i = 0; i < name.length(); i++) {
-            char ch = name.charAt(i);
-            if (!Character.isLetterOrDigit(ch) && ch != '_' && ch != '.') {
-                throw new Exception("Name contains invalid character: " + ch);
+        try {
+            int id = 0;
+            try {
+                id = Integer.parseInt(Id.getText());
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "ID must be a number.");
+                return;
             }
+
+            String name = Name.getText();
+            String email = Email.getText();
+            String password = Password.getText();
+
+            if (name == null || name.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Name cannot be empty");
+                return;
+            }
+            name = name.trim();
+
+            for (int i = 0; i < name.length(); i++) {
+                char ch = name.charAt(i);
+                if (!Character.isLetterOrDigit(ch) && ch != '_' && ch != '.') {
+                    JOptionPane.showMessageDialog(this, "Name contains invalid character: " + ch);
+                    return;
+                }
+            }
+
+            if (email == null || email.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Email cannot be empty");
+                return;
+            }
+            email = email.trim();
+
+            if (!email.contains("@") || !email.contains(".")) {
+                JOptionPane.showMessageDialog(this, "Invalid email format");
+                return;
+            }
+
+            if (password == null || password.length() < 4) {
+                JOptionPane.showMessageDialog(this, "Password too short (min 4 characters)");
+                return;
+            }
+
+            AuthService auth = new AuthService();
+            boolean success = auth.signup(id, role, name, email, password);
+
+            if (success) {
+                JOptionPane.showMessageDialog(this, role + " signed up successfully!");
+                Id.setText("");
+                Name.setText("");
+                Email.setText("");
+                Password.setText("");
+            } else {
+                JOptionPane.showMessageDialog(this, "Signup failed. Email may already exist.");
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
         }
-
-        int atPos = email.indexOf("@");
-        int dotPos = email.lastIndexOf(".");
-        if (atPos <= 0 || dotPos <= atPos + 1 || dotPos == email.length() - 1) {
-            throw new Exception("Invalid email format");
-        }
-
-        if (password == null || password.length() < 4) {
-            throw new Exception("Password too short (min 4 characters)");
-        }
-
-        AuthService auth = new AuthService();
-        boolean success = auth.signup(id, role, name, email, password);
-
-        if (success) {
-            JOptionPane.showMessageDialog(this, role + " signed up successfully!");
-            Id.setText("");
-            Name.setText("");
-            Email.setText("");
-            Password.setText("");
-        } else {
-            JOptionPane.showMessageDialog(this, "Signup failed. Email may already exist.");
-        }
-
-    } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, "ID must be a number.");
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
-    }
-
     }//GEN-LAST:event_SignUpActionPerformed
 
     private void IdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IdActionPerformed
@@ -194,7 +208,7 @@ this.setPreferredSize(new java.awt.Dimension(600, 500));
     }//GEN-LAST:event_PasswordActionPerformed
 
     private void btnbackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnbackActionPerformed
-    JFrame currentFrame = (JFrame) javax.swing.SwingUtilities.getWindowAncestor(this);
+        JFrame currentFrame = (JFrame) javax.swing.SwingUtilities.getWindowAncestor(this);
     currentFrame.dispose();    }//GEN-LAST:event_btnbackActionPerformed
 
 

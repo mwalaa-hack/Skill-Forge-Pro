@@ -29,6 +29,9 @@ public class AuthService {
         } else if ("instructor".equalsIgnoreCase(role)) {
             Instructor instructor = new Instructor(id, username, email, password);
             return userDB.insertRecord(instructor.toJSON());
+        } else if ("admin".equalsIgnoreCase(role)) {
+            Admin admin = new Admin(id, username, email, password);
+            return userDB.insertRecord(admin.toJSON());
         }
         return false;
     }
