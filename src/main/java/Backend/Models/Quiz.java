@@ -5,10 +5,8 @@
 package Backend.Models;
 
 import java.util.ArrayList;
-import courses.Question;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import Backend.Models.Question
 
 /**
  *
@@ -17,8 +15,8 @@ import Backend.Models.Question
 public class Quiz {
     private ArrayList<Question> questions;
     private int quizId;
-    private int passingScore;
-    public Quiz(int quizId,int passingScore){
+    private double passingScore;
+    public Quiz(int quizId,double passingScore){
         setQuizId(quizId);
         setPassingScore(passingScore);
         this.questions=new ArrayList<>();
@@ -26,7 +24,7 @@ public class Quiz {
     }
     public Quiz(JSONObject json){
         this.quizId=json.getInt("quizId");
-        this.passingScore=json.getInt("passingScore");
+        this.passingScore=json.getDouble("passingScore");
         this.questions=new ArrayList<>();
         JSONArray questionArr=json.optJSONArray("questions");
         if(questionArr!=null){
@@ -47,7 +45,7 @@ public class Quiz {
     questions.add(q);
         return true;
 }
-    public boolean isPassed(int score){
+    public boolean isPasse(double score){
         if(score>=passingScore){
         return true;
         }
@@ -69,7 +67,7 @@ public class Quiz {
         return quizId;
     }
 
-    public int getPassingScore() {
+    public double getPassingScore() {
         return passingScore;
     }
 
@@ -81,7 +79,7 @@ public class Quiz {
         throw new IllegalArgumentException("quizId must be greater than 0");}
         this.quizId=quizId;
     }
-    public void setPassingScore(int passingScore){
+    public void setPassingScore(double passingScore){
     if(passingScore<1){
         throw new IllegalArgumentException("passingScore must be at least 1");
     }  

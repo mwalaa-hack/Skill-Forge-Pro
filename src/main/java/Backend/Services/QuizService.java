@@ -70,7 +70,7 @@ public class QuizService {
         return score;
     }
     
-    public boolean isQuizPassed(int score){
+    public boolean isQuizPassed(double score){
         return quiz.isPassed(score);
     }
 }
