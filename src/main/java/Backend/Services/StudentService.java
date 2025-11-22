@@ -2,10 +2,11 @@ package Backend.Services;
 
 import Backend.Database.CourseDatabase;
 import Backend.Database.UserDatabase;
+import Backend.Models.Certificate;
 import Backend.Models.Course;
+import Backend.Models.Lesson;
 import Backend.Models.Student;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class StudentService {
 
@@ -64,6 +65,22 @@ public class StudentService {
         return completedLessons.size();
     }
     
+    public ArrayList<Certificate> getCertificates(){
+        ArrayList<Integer> certificatesIds = student.getCertificates();
+        ArrayList<Certificate> certificates = new ArrayList<Certificate>();
+        for(int i = 0; i < certificatesIds.size(); i++){
+            certificates.add(i, users.getCetificateById(certificatesIds.get(i)));
+        }
+        return certificates;
+    }
     
+    public boolean checkCourseCompletion(Course course){
+     ArrayList<Integer> completedLessons = student.getCompletedLessonsByCourseId(course.getCourseId());
+        ArrayList<Lesson> totalLessons = course.getLessons();
+        if(completedLessons.size() == totalLessons.size()){
+            return true;
+        }
+        return false;
+    }
     
 }
