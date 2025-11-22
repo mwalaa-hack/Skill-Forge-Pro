@@ -5,6 +5,8 @@
 package Backend.Services;
 
 import Backend.Models.Course;
+import Backend.Models.Lesson;
+import Backend.Models.Student;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -19,10 +21,28 @@ public class AnalyticsService {
         this.course = course;
     }
     
-    public ArrayList<HashMap<String, Double>> getStudentsProgress(){
-    ArrayList<HashMap<String, Double>> totalProgress = new ArrayList<HashMap<String,Double>>();
-    int totalEnrolledStudents = course.getStudentIds().size();
+    public ArrayList<HashMap<String, Integer>> getStudentsProgress(){
+    ArrayList<HashMap<String, Integer>> totalProgress = new ArrayList<HashMap<String,Integer>>();
+    ArrayList<Integer> enrolledStudentsIds = course.getStudentIds();
+    int numberOfEnrolledStudents = course.getStudentIds().size();
+    CourseService courseService = new CourseService(course);
+    for(int i = 0; i < numberOfEnrolledStudents; i++){
+        HashMap<String, Integer> studentProgress = new HashMap<String, Integer>();
+        Student s = courseService.getStudentById(i);
+        String name = s.getUsername();
+        int progress = calculateCourseProgress(s);
+        studentProgress.put(name, progress);
+        totalProgress.add(studentProgress);
     }
+    return totalProgress;
+    }
+    private int calculateCourseProgress(Student s){
+        ArrayList<Integer> completedLessons = s.getCompletedLessonsByCourseId(course.getCourseId());
+        ArrayList<Lesson> totalLessons = course.getLessons();
+        int progress = (completedLessons.size()/totalLessons.size())*100;
+        return progress;
+    }
+    
     
     
 } 
