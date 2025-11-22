@@ -31,36 +31,11 @@ public class StudentService {
         return enrollStatus;
     }
 
-    public boolean dropCourse(int courseId) {
-        Course course = courses.getCourseById(courseId);
-        if (course != null) {
-            course.removeStudentById(student.getUserId());
-        }
-        student.dropCourseById(courseId);
-        return users.updateUser(student);
-    }
-
     public boolean completeLesson(int courseId, int lessonId) {
         student.markLessonCompletedById(courseId, lessonId);
         return users.updateUser(student);
     }
-
-    public boolean unmarkLesson(int courseId, int lessonId) {
-        ArrayList<Integer> completedLessons = student.getCompletedLessonsByCourseId(courseId);
-        boolean removedStatus = false;
-        for (int i = 0; i < completedLessons.size(); i++) {
-            if (completedLessons.get(i) == lessonId) {
-                completedLessons.remove(i);
-                removedStatus = true;
-                break;
-            }
-        }
-        if (removedStatus) {
-            return users.updateUser(student);
-        }
-        return false;
-    }
-
+    
     public ArrayList<Course> getEnrolledCourses() {
         ArrayList<Course> enrolledCourses = new ArrayList<>();
         ArrayList<Integer> enrolledIds = student.getEnrolledCourseIds();
