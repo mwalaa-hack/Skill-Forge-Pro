@@ -69,7 +69,7 @@ public class StudentService {
         ArrayList<Integer> certificatesIds = student.getCertificates();
         ArrayList<Certificate> certificates = new ArrayList<Certificate>();
         for(int i = 0; i < certificatesIds.size(); i++){
-            certificates.add(i, users.getCetificateById(certificatesIds.get(i)));
+            certificates.add(i, users.getCertificateById(certificatesIds.get(i)));
         }
         return certificates;
     }
