@@ -4,6 +4,8 @@
  */
 package Backend.Services;
 
+import Backend.Database.CourseDatabase;
+import Backend.Database.UserDatabase;
 import Backend.Models.Course;
 import Backend.Models.Lesson;
 import Backend.Models.Student;
