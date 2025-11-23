@@ -4,19 +4,152 @@
  */
 package Frontend;
 
+import Backend.Models.Course;
+import Backend.Models.Lesson;
+import Backend.Models.Question;
+import Backend.Models.Quiz;
+import Backend.Models.Student;
+import Backend.Services.QuizService;
+import Backend.Services.StudentService;
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author pola-nasser13
  */
 public class QuizPanel extends javax.swing.JPanel {
-
+    private QuizService quizService;
+    private StudentService studentService;
+    private Student currentStudent;
+    private Quiz currentQuiz;
+    private ArrayList<Question> questions;
+    private ArrayList<Integer> userAnswers;
+    private int currentQuestionIndex;
+    private int courseId;
+    private int lessonId;
+    private javax.swing.JPanel parentPanel; 
     /**
      * Creates new form QuizPanel
      */
-    public QuizPanel() {
+    public QuizPanel(Student student, int courseId, int lessonId, javax.swing.JPanel parentPanel) {
         initComponents();
+        this.currentStudent = student;
+        this.courseId = courseId;
+        this.lessonId = lessonId;
+        this.parentPanel = parentPanel;
+        this.studentService = new StudentService(student);
+        initializeQuiz();
+    }
+private void initializeQuiz() {
+        try {
+            Course course = studentService.getCourse(courseId);
+            if (course == null) {
+                JOptionPane.showMessageDialog(this, "Course not found!");
+                return;
+            }
+
+            if (!studentService.canAccessLesson(course, lessonId)) {
+                JOptionPane.showMessageDialog(this, "You cannot access this lesson yet!");
+                return;
+            }
+
+            Lesson lesson = course.getLessonById(lessonId);
+            if (lesson == null) {
+                JOptionPane.showMessageDialog(this, "Lesson not found!");
+                return;
+            }
+
+            currentQuiz = lesson.getQuiz();
+            questions = currentQuiz.getQuestions();
+            
+            if (questions.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No questions available for this quiz!");
+                return;
+            }
+
+            quizService = new QuizService(currentQuiz, currentStudent, courseId, lessonId);
+            userAnswers = new ArrayList<>();
+            for (int i = 0; i < questions.size(); i++) {
+                userAnswers.add(-1);
+            }
+
+            currentQuestionIndex = 0;
+            updateUI();
+            loadQuestion(currentQuestionIndex);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error initializing quiz: " + e.getMessage());
+        }
     }
 
+    private void loadQuestion(int questionIndex) {
+        if (questionIndex < 0 || questionIndex >= questions.size()) {
+            return;
+        }
+
+        Question question = questions.get(questionIndex);
+        
+        tfquestionNum.setText(String.valueOf(questionIndex + 1));
+        tfnumOfQuestions.setText(String.valueOf(questions.size()));
+        tfcourseId.setText(String.valueOf(courseId));
+        tfLessonId.setText(String.valueOf(lessonId));
+        
+        tfQuestion.setText(question.getText());
+        
+        ArrayList<String> choices = question.getChoices();
+        tfChoiceA.setText(choices.size() > 0 ? choices.get(0) : "");
+        tfChoiceB.setText(choices.size() > 1 ? choices.get(1) : "");
+        tfChoiceC.setText(choices.size() > 2 ? choices.get(2) : "");
+        tfChoiceD.setText(choices.size() > 3 ? choices.get(3) : "");
+
+        clearCheckboxes();
+        int previousAnswer = userAnswers.get(questionIndex);
+        if (previousAnswer != -1) {
+            setCheckbox(previousAnswer);
+        }
+
+        updateNavigationButtons();
+    }
+
+    private void clearCheckboxes() {
+        checkboxA.setState(false);
+        checkboxB.setState(false);
+        checkboxC.setState(false);
+        checkboxD.setState(false);
+    }
+
+    private void setCheckbox(int choice) {
+        switch (choice) {
+            case 0: checkboxA.setState(true); break;
+            case 1: checkboxB.setState(true); break;
+            case 2: checkboxC.setState(true); break;
+            case 3: checkboxD.setState(true); break;
+        }
+    }
+
+    private void saveCurrentAnswer() {
+        int selectedChoice = getSelectedChoice();
+        userAnswers.set(currentQuestionIndex, selectedChoice);
+    }
+
+    private int getSelectedChoice() {
+        if (checkboxA.getState()) return 0;
+        if (checkboxB.getState()) return 1;
+        if (checkboxC.getState()) return 2;
+        if (checkboxD.getState()) return 3;
+        return -1;
+    }
+
+    private void updateNavigationButtons() {
+        btnPreviousQuestion.setEnabled(currentQuestionIndex > 0);
+        btnNextQuestion1.setEnabled(currentQuestionIndex < questions.size() - 1);
+    }
+
+    public void updateUI() {
+        int attempts = quizService.getQuizAttempts();
+        jLabel7.setText("Attempt: " + attempts);
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -89,10 +222,15 @@ public class QuizPanel extends javax.swing.JPanel {
         jLabel15.setFont(new java.awt.Font("Liberation Sans", 0, 18)); // NOI18N
         jLabel15.setText(" Go to Question num:");
 
+        tfGotonumQuestion.addActionListener(this::tfGotonumQuestionActionPerformed);
+
         btnGotoQuestionNum.setText("Go");
+        btnGotoQuestionNum.addActionListener(this::btnGotoQuestionNumActionPerformed);
 
         jLabel16.setFont(new java.awt.Font("Liberation Sans", 0, 18)); // NOI18N
         jLabel16.setText("Number of Questions:");
+
+        tfChoiceD.addActionListener(this::tfChoiceDActionPerformed);
 
         tfQuestion.addActionListener(this::tfQuestionActionPerformed);
 
@@ -114,6 +252,8 @@ public class QuizPanel extends javax.swing.JPanel {
         tfChoiceA.addActionListener(this::tfChoiceAActionPerformed);
 
         tfChoiceB.addActionListener(this::tfChoiceBActionPerformed);
+
+        tfChoiceC.addActionListener(this::tfChoiceCActionPerformed);
 
         jLabel9.setFont(new java.awt.Font("Liberation Sans", 0, 18)); // NOI18N
         jLabel9.setText("Question:");
@@ -184,10 +324,11 @@ public class QuizPanel extends javax.swing.JPanel {
                             .addGroup(jDesktopPane1Layout.createSequentialGroup()
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGroup(jDesktopPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(jDesktopPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jLabel11)
-                                        .addComponent(tfChoiceA, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(jDesktopPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(tfChoiceA, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGroup(jDesktopPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                            .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jLabel11)))
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jDesktopPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(tfChoiceB, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(jLabel13)
@@ -222,6 +363,7 @@ public class QuizPanel extends javax.swing.JPanel {
         tfquestionNum.addActionListener(this::tfquestionNumActionPerformed);
 
         btnSubmit.setText("Submit");
+        btnSubmit.addActionListener(this::btnSubmitActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -318,12 +460,18 @@ public class QuizPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnPreviousQuestionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPreviousQuestionActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnPreviousQuestionActionPerformed
+        saveCurrentAnswer();
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            loadQuestion(currentQuestionIndex);
+        }    }//GEN-LAST:event_btnPreviousQuestionActionPerformed
 
     private void btnNextQuestion1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNextQuestion1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnNextQuestion1ActionPerformed
+        saveCurrentAnswer();
+        if (currentQuestionIndex < questions.size() - 1) {
+            currentQuestionIndex++;
+            loadQuestion(currentQuestionIndex);
+        }    }//GEN-LAST:event_btnNextQuestion1ActionPerformed
 
     private void tfcourseIdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfcourseIdActionPerformed
         // TODO add your handling code here:
@@ -349,6 +497,73 @@ public class QuizPanel extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_tfquestionNumActionPerformed
 
+    private void tfChoiceCActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfChoiceCActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tfChoiceCActionPerformed
+
+    private void tfChoiceDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfChoiceDActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tfChoiceDActionPerformed
+
+    private void tfGotonumQuestionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfGotonumQuestionActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tfGotonumQuestionActionPerformed
+
+    private void btnGotoQuestionNumActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGotoQuestionNumActionPerformed
+        try {
+            saveCurrentAnswer();
+            int questionNum = Integer.parseInt(tfGotonumQuestion.getText()) - 1;
+            if (questionNum >= 0 && questionNum < questions.size()) {
+                currentQuestionIndex = questionNum;
+                loadQuestion(currentQuestionIndex);
+            } else {
+                JOptionPane.showMessageDialog(this, "Invalid question number! Must be between 1 and " + questions.size());
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid number!");
+        }    }//GEN-LAST:event_btnGotoQuestionNumActionPerformed
+
+    private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
+        saveCurrentAnswer();
+
+        if (!areAllQuestionsAnswered()) {
+            int result = JOptionPane.showConfirmDialog(this, 
+                "Some questions are unanswered. Submit anyway?", 
+                "Confirm Submission", 
+                JOptionPane.YES_NO_OPTION);
+            if (result != JOptionPane.YES_OPTION) {
+                return;
+            }
+        }
+
+        try {
+            double score = quizService.calculateScore(userAnswers);
+            boolean passed = quizService.isPassed(score);
+            int attempts = quizService.getQuizAttempts();
+            showQuizResults(score, passed, attempts);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error submitting quiz: " + e.getMessage());
+        }    }//GEN-LAST:event_btnSubmitActionPerformed
+    private void showQuizResults(double score, boolean passed, int attempts) {
+        SumbitQuiz resultsPanel = new SumbitQuiz(score, passed, attempts, questions, userAnswers);
+        
+        if (parentPanel != null) {
+            parentPanel.removeAll();
+            parentPanel.add(resultsPanel);
+            parentPanel.revalidate();
+            parentPanel.repaint();
+        }
+    }
+
+    private boolean areAllQuestionsAnswered() {
+        for (int answer : userAnswers) {
+            if (answer == -1) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnGotoQuestionNum;

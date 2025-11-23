@@ -214,11 +214,17 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="tfGotonumQuestion">
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tfGotonumQuestionActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btnGotoQuestionNum">
       <Properties>
         <Property name="text" type="java.lang.String" value="Go"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGotoQuestionNumActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel16">
       <Properties>
@@ -284,10 +290,12 @@
                               <Group type="102" alignment="0" attributes="0">
                                   <EmptySpace pref="57" max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                      <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                                          <Component id="jLabel10" alignment="3" min="-2" pref="61" max="-2" attributes="0"/>
-                                          <Component id="jLabel11" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Group type="103" alignment="0" groupAlignment="0" attributes="0">
                                           <Component id="tfChoiceA" alignment="1" min="-2" pref="52" max="-2" attributes="0"/>
+                                          <Group type="103" groupAlignment="3" attributes="0">
+                                              <Component id="jLabel10" alignment="3" min="-2" pref="61" max="-2" attributes="0"/>
+                                              <Component id="jLabel11" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          </Group>
                                       </Group>
                                       <Group type="103" alignment="1" groupAlignment="3" attributes="0">
                                           <Component id="tfChoiceB" alignment="3" min="-2" pref="54" max="-2" attributes="0"/>
@@ -338,6 +346,9 @@
         <Component class="java.awt.Checkbox" name="checkboxD">
         </Component>
         <Component class="javax.swing.JTextField" name="tfChoiceD">
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tfChoiceDActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JTextField" name="tfQuestion">
           <Events>
@@ -401,6 +412,9 @@
           </Events>
         </Component>
         <Component class="javax.swing.JTextField" name="tfChoiceC">
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tfChoiceCActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel9">
           <Properties>
@@ -426,6 +440,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Submit"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnSubmitActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

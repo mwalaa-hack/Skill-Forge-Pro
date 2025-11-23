@@ -4,6 +4,9 @@
  */
 package Frontend;
 
+import Backend.Models.Question;
+import java.util.ArrayList;
+
 /**
  *
  * @author pola-nasser13
@@ -13,8 +16,78 @@ public class SumbitQuiz extends javax.swing.JPanel {
     /**
      * Creates new form SumbitQuiz
      */
-    public SumbitQuiz() {
+    private double score;
+    private boolean passed;
+    private int attempts;
+    private ArrayList<Question> questions;
+    private ArrayList<Integer> userAnswers;
+
+    public SumbitQuiz(double score, boolean passed, int attempts, 
+                     ArrayList<Question> questions, ArrayList<Integer> userAnswers) {
         initComponents();
+        this.score = score;
+        this.passed = passed;
+        this.attempts = attempts;
+        this.questions = questions;
+        this.userAnswers = userAnswers;
+        displayResults();
+        makeFieldsReadOnly();
+    }
+
+    private void displayResults() {
+        // Set basic results
+        tfScore.setText(String.format("%.2f%%", score));
+        tfNumOfAttempts.setText(String.valueOf(attempts));
+        
+        if (passed) {
+            tfPassOrFail.setText("PASSED");
+            tfPassOrFail.setForeground(new java.awt.Color(0, 128, 0)); // Green
+            displayQuestionsAndAnswers();
+        } else {
+            tfPassOrFail.setText("FAILED");
+            tfPassOrFail.setForeground(new java.awt.Color(255, 0, 0)); // Red
+            QuestionsAndAnswers.setText("You must pass the quiz to see the correct answers and access the next lesson.\n\nYou can retake the quiz to improve your score.");
+        }
+    }
+
+    private void displayQuestionsAndAnswers() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("QUESTIONS AND CORRECT ANSWERS:\n\n");
+        
+        for (int i = 0; i < questions.size(); i++) {
+            Question question = questions.get(i);
+            sb.append("Question ").append(i + 1).append(": ").append(question.getText()).append("\n");
+            
+            ArrayList<String> choices = question.getChoices();
+            int correctChoice = question.getCorrectChoice();
+            int userAnswer = userAnswers.get(i);
+            
+            // Display all choices
+            for (int j = 0; j < choices.size(); j++) {
+                String choiceLabel = String.valueOf((char)('A' + j));
+                String choiceText = choices.get(j);
+                
+                if (j == correctChoice) {
+                    sb.append("✓ ").append(choiceLabel).append(") ").append(choiceText).append(" (CORRECT)\n");
+                } else if (j == userAnswer) {
+                    sb.append("✗ ").append(choiceLabel).append(") ").append(choiceText).append(" (YOUR ANSWER)\n");
+                } else {
+                    sb.append("  ").append(choiceLabel).append(") ").append(choiceText).append("\n");
+                }
+            }
+            
+            // Add spacing between questions
+            sb.append("\n");
+        }
+        
+        QuestionsAndAnswers.setText(sb.toString());
+    }
+
+    private void makeFieldsReadOnly() {
+        tfScore.setEditable(false);
+        tfPassOrFail.setEditable(false);
+        tfNumOfAttempts.setEditable(false);
+        QuestionsAndAnswers.setEditable(false);
     }
 
     /**
@@ -45,6 +118,8 @@ public class SumbitQuiz extends javax.swing.JPanel {
         jLabel3.setFont(new java.awt.Font("Liberation Sans", 0, 18)); // NOI18N
         jLabel3.setText("Your score:");
 
+        tfNumOfAttempts.addActionListener(this::tfNumOfAttemptsActionPerformed);
+
         jLabel6.setFont(new java.awt.Font("Liberation Sans", 0, 18)); // NOI18N
         jLabel6.setText("Number of attempts:");
 
@@ -67,18 +142,6 @@ public class SumbitQuiz extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(tfScore, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel8)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(tfPassOrFail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel7)
-                        .addContainerGap(12, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -89,7 +152,21 @@ public class SumbitQuiz extends javax.swing.JPanel {
                                 .addGap(310, 310, 310))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addComponent(jLabel1)
-                                .addGap(277, 277, 277))))))
+                                .addGap(277, 277, 277))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(tfScore, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel8)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(tfPassOrFail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel7)
+                                .addGap(0, 6, Short.MAX_VALUE)))
+                        .addContainerGap())))
             .addGroup(layout.createSequentialGroup()
                 .addGap(310, 310, 310)
                 .addComponent(jLabel9)
@@ -130,6 +207,10 @@ public class SumbitQuiz extends javax.swing.JPanel {
     private void tfPassOrFailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfPassOrFailActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_tfPassOrFailActionPerformed
+
+    private void tfNumOfAttemptsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfNumOfAttemptsActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tfNumOfAttemptsActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

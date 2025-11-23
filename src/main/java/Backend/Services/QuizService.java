@@ -23,73 +23,45 @@ public class QuizService {
     private Student student;
     private int courseId;
     private int lessonId;
-    private CourseService courseService;
-    private Course c;
-    private Lesson l;
-    private CourseDatabase courses;
-    private UserDatabase users;
-    
-    public QuizService(Quiz quiz, Student student, int courseId, int lessonId){
+    private StudentService studentService;
+
+    public QuizService(Quiz quiz, Student student, int courseId, int lessonId) {
         this.quiz = quiz;
         this.student = student;
         this.courseId = courseId;
         this.lessonId = lessonId;
-        c = getCourseById(courseId);
-        courseService = new CourseService(c);
-        l = courseService.getLessonById(lessonId);
-         this.courses = new CourseDatabase("courses.json");
-         this.users = new UserDatabase("users.json");
-    }
-    
-
-    public Course getCourseById(int id) {
-        return courses.getCourseById(id);
+        this.studentService = new StudentService(student);
     }
 
-    private boolean markQuestion(int questionNumber, int choice){
-        if(choice == quiz.getQuestions().get(questionNumber).getCorrectChoice()){
-            return true;
+    public double calculateScore(ArrayList<Integer> userAnswers) {
+        if (userAnswers.size() != quiz.getQuestions().size()) {
+            throw new IllegalArgumentException("Number of answers must match number of questions");
         }
-        else {
-            return false;
-        }
-    }
-    
-    public double getQuizScore(String answers){
-        student.incrementQuizAttempts(lessonId, courseId);
-        String[] answersArray = answers.split(",");
-        int correctAnswersCount = 0;
-        for(int i=0; i < answersArray.length; i++){
-            int choice = -1;
-            try{
-                choice = Integer.parseInt(answersArray[i]);
-            }
-            catch(NumberFormatException e){
-                System.out.println("Error! Choice not a number!");
-            }
-            boolean answerCorrect = markQuestion(i,choice);
-            if(answerCorrect){
-                correctAnswersCount++;
+
+        int correctCount = 0;
+        for (int i = 0; i < userAnswers.size(); i++) {
+            if (userAnswers.get(i) == quiz.getQuestions().get(i).getCorrectChoice()) {
+                correctCount++;
             }
         }
-        double score = (correctAnswersCount / answersArray.length) * 100;
-        student.setQuizScore(courseId, lessonId, score);
-        users.updateUser(student);
+
+        double score = (correctCount * 100.0) / quiz.getQuestions().size();
+        
+        studentService.submitQuiz(courseId, lessonId, score);
+        
         return score;
     }
-    
-    public boolean isQuizPassed(double score){
-        return quiz.isPassed(score);
+
+    public boolean isPassed(double score) {
+        return score >= quiz.getPassingScore();
     }
-    
-    public int getQuizAttempts(){
-        HashMap<String, Integer> totalAttempts = student.getQuizAttempts();
-        String key = courseId + "_" + lessonId;
-        int attempts = totalAttempts.get(key);
-        return attempts;
+
+    public int getQuizAttempts() {
+        return student.getQuizAttempts(courseId, lessonId);
     }
-    
-    public ArrayList<Question> getQuestions(){
+
+    public ArrayList<Question> getQuestions() {
         return quiz.getQuestions();
     }
+
 }

@@ -211,4 +211,15 @@ public class Student extends User {
         
         return j;
     }
+    public boolean isLessonCompleted(int courseId, int lessonId) {
+    ArrayList<Integer> completed = progress.get(courseId);
+    if (completed == null) return false;
+    
+    for (int i = 0; i < completed.size(); i++) {
+        if (completed.get(i) == lessonId) {
+            return true;
+        }
+    }
+    return false;
+}
 }
