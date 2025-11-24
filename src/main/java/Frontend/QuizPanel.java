@@ -32,56 +32,59 @@ public class QuizPanel extends javax.swing.JPanel {
     /**
      * Creates new form QuizPanel
      */
-    public QuizPanel(Student student, int courseId, int lessonId, javax.swing.JPanel parentPanel) {
-        initComponents();
-        this.currentStudent = student;
-        this.courseId = courseId;
-        this.lessonId = lessonId;
-        this.parentPanel = parentPanel;
-        this.studentService = new StudentService(student);
-        initializeQuiz();
-    }
+public QuizPanel(Student student, int courseId, int lessonId, javax.swing.JPanel parentPanel) {
+    initComponents();
+    this.currentStudent = student;
+    this.courseId = courseId;
+    this.lessonId = lessonId;
+    this.parentPanel = parentPanel;
+    this.studentService = new StudentService(student);
+    
+    initializeQuiz();
+}
+
 private void initializeQuiz() {
-        try {
-            Course course = studentService.getCourse(courseId); 
-            if (course == null) {
-                JOptionPane.showMessageDialog(this, "Course not found!");
-                return;
-            }
-
-            if (!studentService.canAccessLesson(course, lessonId)) {
-                JOptionPane.showMessageDialog(this, "You cannot access this lesson yet!");
-                return;
-            }
-
-            Lesson lesson = course.getLessonById(lessonId);
-            if (lesson == null) {
-                JOptionPane.showMessageDialog(this, "Lesson not found!");
-                return;
-            }
-
-            currentQuiz = lesson.getQuiz();
-            questions = currentQuiz.getQuestions();
-            
-            if (questions.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "No questions available for this quiz!");
-                return;
-            }
-
-            quizService = new QuizService(currentQuiz, currentStudent, courseId, lessonId);
-            userAnswers = new ArrayList<>();
-            for (int i = 0; i < questions.size(); i++) {
-                userAnswers.add(-1);
-            }
-
-            currentQuestionIndex = 0;
-            updateUI();
-            loadQuestion(currentQuestionIndex);
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error initializing quiz: " + e.getMessage());
+    try {
+        Course course = studentService.getCourse(courseId); 
+        if (course == null) {
+            JOptionPane.showMessageDialog(this, "Course not found!");
+            return;
         }
+
+        if (!studentService.canAccessLesson(course, lessonId)) {
+            JOptionPane.showMessageDialog(this, "You cannot access this lesson yet!");
+            return;
+        }
+
+        Lesson lesson = course.getLessonById(lessonId);
+        if (lesson == null) {
+            JOptionPane.showMessageDialog(this, "Lesson not found!");
+            return;
+        }
+
+        currentQuiz = lesson.getQuiz();
+        questions = currentQuiz.getQuestions();
+        
+        if (questions.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No questions available for this quiz!");
+            return;
+        }
+
+        quizService = new QuizService(currentQuiz, currentStudent, courseId, lessonId);
+        userAnswers = new ArrayList<>();
+        for (int i = 0; i < questions.size(); i++) {
+            userAnswers.add(-1);
+        }
+
+        currentQuestionIndex = 0;
+        
+        updateUI();
+        loadQuestion(currentQuestionIndex);
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error initializing quiz: " + e.getMessage());
     }
+}
 
     private void loadQuestion(int questionIndex) {
         if (questionIndex < 0 || questionIndex >= questions.size()) {
@@ -146,10 +149,14 @@ private void initializeQuiz() {
         btnNextQuestion1.setEnabled(currentQuestionIndex < questions.size() - 1);
     }
 
-    public void updateUI() {
+public void updateUI() {
+    if (quizService != null) {
         int attempts = quizService.getQuizAttempts();
         jLabel7.setText("Attempt: " + attempts);
+    } else {
+        jLabel7.setText("Attempt: 0");
     }
+}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

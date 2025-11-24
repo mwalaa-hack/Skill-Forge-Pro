@@ -39,6 +39,7 @@ public class CreateQuiz extends javax.swing.JPanel {
         initComponents();
     }
 
+
     public CreateQuiz(Instructor instructor) {
         this.instructor = instructor;
         this.instructorService = new InstructorService(instructor);
@@ -49,39 +50,50 @@ public class CreateQuiz extends javax.swing.JPanel {
         loadInstructorCourses();
     }
 
-    private void initializeTables() {
-        courseTableModel = new DefaultTableModel(
-                new Object[][]{},
-                new String[]{"courseId", "courseName", "Status"}
-        ) {
-            Class[] types = new Class[]{
-                java.lang.Integer.class, java.lang.String.class, java.lang.String.class
-            };
 
-            public Class getColumnClass(int columnIndex) {
-                return types[columnIndex];
+    private void initializeTables() {
+        courseTableModel = (DefaultTableModel) courseTable.getModel();
+        
+        courseTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                courseTableMouseClicked(evt);
             }
-        };
-        courseTable.setModel(courseTableModel);
+        });
 
         lessonTableModel = new DefaultTableModel(
                 new Object[][]{},
                 new String[]{"lessonId", "lessonName"}
         );
         lessonTable.setModel(lessonTableModel);
+        
+        lessonTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lessonTableMouseClicked(evt);
+            }
+        });
 
         questionTableModel = new DefaultTableModel(
                 new Object[][]{},
                 new String[]{"questionId", "question", "Choices", "CorrectAnswer"}
         );
         questionTable.setModel(questionTableModel);
+        
+        courseTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        lessonTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        questionTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        
+        checkboxA.addItemListener(this::checkboxAItemStateChanged);
+        checkbox1.addItemListener(this::checkbox1ItemStateChanged);
+        checkboxC.addItemListener(this::checkboxCItemStateChanged);
+        checkboxD.addItemListener(this::checkboxDItemStateChanged);
     }
 
     private void loadInstructorCourses() {
         courseTableModel.setRowCount(0);
         ArrayList<Integer> courseIds = instructor.getCreatedCourseIds();
 
-        for (Integer courseId : courseIds) {
+        for (int i = 0; i < courseIds.size(); i++) {
+            Integer courseId = courseIds.get(i);
             Course course = courseDatabase.getCourseById(courseId);
             if (course != null && course.getApprovalStatus().toString().equals("APPROVED")) {
                 courseTableModel.addRow(new Object[]{
@@ -102,7 +114,8 @@ public class CreateQuiz extends javax.swing.JPanel {
         selectedCourse = courseDatabase.getCourseById(courseId);
         if (selectedCourse != null) {
             ArrayList<Lesson> lessons = selectedCourse.getLessons();
-            for (Lesson lesson : lessons) {
+            for (int i = 0; i < lessons.size(); i++) {
+                Lesson lesson = lessons.get(i);
                 lessonTableModel.addRow(new Object[]{
                     lesson.getLessonId(),
                     lesson.getTitle()
@@ -118,22 +131,41 @@ public class CreateQuiz extends javax.swing.JPanel {
 
         if (selectedCourse != null) {
             selectedLesson = selectedCourse.getLessonById(lessonId);
-            if (selectedLesson != null && selectedLesson.hasQuiz()) {
-                Quiz quiz = selectedLesson.getQuiz();
-                if (quiz != null) {
-                    ArrayList<Question> questions = quiz.getQuestions();
-                    questionsList.addAll(questions);
-
-                    for (Question question : questions) {
-                        String choices = formatChoices(question.getChoices());
-                        String correctAnswer = getChoiceLetter(question.getCorrectChoice());
-                        questionTableModel.addRow(new Object[]{
-                            question.getQuestionId(),
-                            question.getText(),
-                            choices,
-                            correctAnswer
-                        });
+            if (selectedLesson != null) {
+                if (selectedLesson.hasQuiz()) {
+                    Quiz quiz = selectedLesson.getQuiz();
+                    if (quiz != null) {
+                        ArrayList<Question> questions = quiz.getQuestions();
+                        for (int i = 0; i < questions.size(); i++) {
+                            Question question = questions.get(i);
+                            questionsList.add(question);
+                            String choices = formatChoices(question.getChoices());
+                            String correctAnswer = getChoiceLetter(question.getCorrectChoice());
+                            questionTableModel.addRow(new Object[]{
+                                question.getQuestionId(),
+                                question.getText(),
+                                choices,
+                                correctAnswer
+                            });
+                        }
                     }
+                } else {
+                    questionsList.clear();
+                    questionTableModel.setRowCount(0);
+                }
+            }
+        }
+    }
+
+    private void refreshCurrentLesson() {
+        if (selectedCourse != null && selectedLesson != null) {
+            Course refreshedCourse = courseDatabase.getCourseById(selectedCourse.getCourseId());
+            if (refreshedCourse != null) {
+                selectedCourse = refreshedCourse;
+                Lesson refreshedLesson = selectedCourse.getLessonById(selectedLesson.getLessonId());
+                if (refreshedLesson != null) {
+                    selectedLesson = refreshedLesson;
+                    loadQuestionsForLesson(selectedLesson.getLessonId());
                 }
             }
         }
@@ -142,7 +174,8 @@ public class CreateQuiz extends javax.swing.JPanel {
     private String formatChoices(ArrayList<String> choices) {
         StringBuilder sb = new StringBuilder();
         char letter = 'A';
-        for (String choice : choices) {
+        for (int i = 0; i < choices.size(); i++) {
+            String choice = choices.get(i);
             sb.append(letter).append(") ").append(choice).append("  ");
             letter++;
         }
@@ -151,10 +184,6 @@ public class CreateQuiz extends javax.swing.JPanel {
 
     private String getChoiceLetter(int choiceIndex) {
         return String.valueOf((char) ('A' + choiceIndex));
-    }
-
-    private int getChoiceIndex(char choiceLetter) {
-        return choiceLetter - 'A';
     }
 
     private void clearQuestionForm() {
@@ -215,7 +244,8 @@ public class CreateQuiz extends javax.swing.JPanel {
 
             int questionId = Integer.parseInt(tfQuestionId.getText().trim());
 
-            for (Question q : questionsList) {
+            for (int i = 0; i < questionsList.size(); i++) {
+                Question q = questionsList.get(i);
                 if (q.getQuestionId() == questionId) {
                     JOptionPane.showMessageDialog(this, "Question ID already exists", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
@@ -311,6 +341,7 @@ public class CreateQuiz extends javax.swing.JPanel {
             }
 
             if (success) {
+                refreshCurrentLesson();
                 JOptionPane.showMessageDialog(this, "Quiz saved successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(this, "Failed to save quiz", "Error", JOptionPane.ERROR_MESSAGE);
@@ -375,15 +406,23 @@ public class CreateQuiz extends javax.swing.JPanel {
 
         courseTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
             },
             new String [] {
-                "courseId", "courseName"
+                "courseId", "courseName", "Status"
             }
-        ));
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
         jScrollPane2.setViewportView(courseTable);
 
         jScrollPane1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -782,7 +821,7 @@ public class CreateQuiz extends javax.swing.JPanel {
     private void courseTableMouseClicked(java.awt.event.MouseEvent evt) {
         int selectedRow = courseTable.getSelectedRow();
         if (selectedRow != -1) {
-            int courseId = (Integer) courseTableModel.getValueAt(selectedRow, 0);
+            int courseId = (Integer) courseTable.getValueAt(selectedRow, 0);
             loadLessonsForCourse(courseId);
         }
     }
@@ -790,7 +829,7 @@ public class CreateQuiz extends javax.swing.JPanel {
     private void lessonTableMouseClicked(java.awt.event.MouseEvent evt) {
         int selectedRow = lessonTable.getSelectedRow();
         if (selectedRow != -1) {
-            int lessonId = (Integer) lessonTableModel.getValueAt(selectedRow, 0);
+            int lessonId = (Integer) lessonTable.getValueAt(selectedRow, 0);
             loadQuestionsForLesson(lessonId);
         }
     }

@@ -126,7 +126,7 @@ public  class User implements Info {
     }
 
     public void setRole(String role) {
-        if (role != null && (role.equalsIgnoreCase("student") || role.equalsIgnoreCase("instructor"))) {
+        if (role != null && (role.equalsIgnoreCase("student") || role.equalsIgnoreCase("instructor") || role.equalsIgnoreCase("admin") )) {
             this.role = role.toLowerCase();
         } else {
             System.out.println("Invalid role. Role not changed.");

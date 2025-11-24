@@ -407,7 +407,6 @@ public class StudentDashboard extends javax.swing.JPanel {
     homeFrame.setVisible(true);    }//GEN-LAST:event_btnbackActionPerformed
 
     private void getQuizButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getQuizButtonActionPerformed
-        
     int selectedRow = enrolledCoursesTable.getSelectedRow();
     if (selectedRow == -1) {
         JOptionPane.showMessageDialog(this, "Please select a course first.");
@@ -415,10 +414,6 @@ public class StudentDashboard extends javax.swing.JPanel {
     }
 
     int courseId = (Integer) enrolledModel.getValueAt(selectedRow, 0);
-    if (selectedCourseId == -1) {
-        JOptionPane.showMessageDialog(this, "Please select a course first using 'ACCESS LESSONS'.");
-        return;
-    }
     
     int selectedLessonRow = lessonTable.getSelectedRow();
     if (selectedLessonRow == -1) {
@@ -427,11 +422,10 @@ public class StudentDashboard extends javax.swing.JPanel {
     }
 
     int lessonId = (Integer) lessonsModel.getValueAt(selectedLessonRow, 0);
-    Course selectedCourse = studentService.getCourse(courseId);
 
     JFrame currentFrame = (JFrame) javax.swing.SwingUtilities.getWindowAncestor(this);
     currentFrame.getContentPane().removeAll();
-    currentFrame.getContentPane().add(new QuizPanel(studentService.getStudent(),courseId, lessonId, this));
+    currentFrame.getContentPane().add(new QuizPanel(studentService.getStudent(), courseId, lessonId, this));
     currentFrame.revalidate();
     currentFrame.repaint();
     }//GEN-LAST:event_getQuizButtonActionPerformed

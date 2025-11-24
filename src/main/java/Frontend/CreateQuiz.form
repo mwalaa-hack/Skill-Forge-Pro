@@ -172,9 +172,10 @@
                 <Component class="javax.swing.JTable" name="courseTable">
                   <Properties>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                      <Table columnCount="2" rowCount="4">
-                        <Column editable="true" title="courseId" type="java.lang.Object"/>
-                        <Column editable="true" title="courseName" type="java.lang.Object"/>
+                      <Table columnCount="3" rowCount="4">
+                        <Column editable="true" title="courseId" type="java.lang.Integer"/>
+                        <Column editable="true" title="courseName" type="java.lang.String"/>
+                        <Column editable="true" title="Status" type="java.lang.String"/>
                       </Table>
                     </Property>
                   </Properties>
