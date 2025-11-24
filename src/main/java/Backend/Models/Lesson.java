@@ -13,6 +13,7 @@ public class Lesson implements Info {
     private String content;
     private ArrayList<String> resources; 
     private Quiz quiz;
+    private boolean hasQuiz;
 
     public Lesson(int lessonId, String title, String content, ArrayList<String> resources, Quiz quiz) {
         setLessonId(lessonId);
@@ -20,13 +21,27 @@ public class Lesson implements Info {
         setContent(content);
         setResources(resources);
         setQuiz(quiz);
+        this.hasQuiz = (quiz != null);
+    }
+
+    public Lesson(int lessonId, String title, String content, ArrayList<String> resources) {
+        this(lessonId, title, content, resources, null);
     }
 
     public Lesson(JSONObject json) {
         this.lessonId = json.getInt("lessonId");
         this.title = json.getString("title");
         this.content = json.getString("content");
-        this.quiz = new Quiz(json.getJSONObject("quiz"));
+        this.hasQuiz = json.optBoolean("hasQuiz", false);
+        
+        if (json.has("quiz") && !json.isNull("quiz")) {
+            this.quiz = new Quiz(json.getJSONObject("quiz"));
+            this.hasQuiz = true;
+        } else {
+            this.quiz = null;
+            this.hasQuiz = false;
+        }
+        
         this.resources = new ArrayList<>();
         JSONArray arr = json.optJSONArray("resources");
         if (arr != null) {
@@ -36,14 +51,23 @@ public class Lesson implements Info {
         }
     }
 
+    public boolean addQuiz(Quiz quiz) {
+        if (quiz == null) {
+            return false;
+        }
+        this.quiz = quiz;
+        this.hasQuiz = true;
+        return true;
+    }
+
+    public boolean hasQuiz() {
+        return hasQuiz;
+    }
+
     public boolean addResource(String resource) {
         if (resource == null || resource.trim().isEmpty() || resources.contains(resource)) return false;
         resources.add(resource);
         return true;
-    }
-
-    public boolean removeResource(String resource) {
-        return resources.remove(resource);
     }
 
     @Override
@@ -52,7 +76,14 @@ public class Lesson implements Info {
         obj.put("lessonId", lessonId);
         obj.put("title", title);
         obj.put("content", content);
-        obj.put("quiz", quiz.toJSON());
+        obj.put("hasQuiz", hasQuiz);
+        
+        if (quiz != null) {
+            obj.put("quiz", quiz.toJSON());
+        } else {
+            obj.put("quiz", JSONObject.NULL);
+        }
+        
         JSONArray resourcesArr = new JSONArray();
         for (int i = 0; i < resources.size(); i++) {
             resourcesArr.put(resources.get(i));
@@ -103,10 +134,8 @@ public class Lesson implements Info {
     }
 
     public void setQuiz(Quiz quiz) {
-        if (quiz == null) {
-            throw new IllegalArgumentException("A lesson must have a quiz");
-        }
         this.quiz = quiz;
+        this.hasQuiz = (quiz != null);
     }
 
     public boolean equals(Object obj) {

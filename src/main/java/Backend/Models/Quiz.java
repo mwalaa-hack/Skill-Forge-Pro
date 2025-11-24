@@ -46,8 +46,22 @@ public class Quiz implements Info {
         return true;
     }
     
+    public boolean removeQuestion(int questionId) {
+        for (int i = 0; i < questions.size(); i++) {
+            if (questions.get(i).getQuestionId() == questionId) {
+                questions.remove(i);
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public boolean isPassed(double score) {
         return score >= passingScore;
+    }
+    
+    public boolean isValidForLesson() {
+        return questions.size() >= 1;
     }
     
     @Override

@@ -43,7 +43,7 @@ public class QuizPanel extends javax.swing.JPanel {
     }
 private void initializeQuiz() {
         try {
-            Course course = studentService.getCourse(courseId);
+            Course course = studentService.getCourse(courseId); 
             if (course == null) {
                 JOptionPane.showMessageDialog(this, "Course not found!");
                 return;

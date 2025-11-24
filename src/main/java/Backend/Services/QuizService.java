@@ -58,4 +58,21 @@ public class QuizService {
         return quiz.getQuestions();
     }
 
+    public boolean addQuestion(Question question) {
+        return quiz.addQuestion(question);
+    }
+
+    public boolean removeQuestion(int questionId) {
+        return quiz.removeQuestion(questionId);
+    }
+
+    public Question getQuestionById(int questionId) {
+        for (int i = 0; i < quiz.getQuestions().size(); i++) {
+            Question question = quiz.getQuestions().get(i);
+            if (question.getQuestionId() == questionId) {
+                return question;
+            }
+        }
+        return null;
+    }
 }
