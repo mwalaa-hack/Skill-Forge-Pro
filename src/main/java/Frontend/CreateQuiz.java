@@ -4,6 +4,17 @@
  */
 package Frontend;
 
+import Backend.Database.CourseDatabase;
+import Backend.Models.Course;
+import Backend.Models.Instructor;
+import Backend.Models.Lesson;
+import Backend.Models.Question;
+import Backend.Models.Quiz;
+import Backend.Services.InstructorService;
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author pola-nasser13
@@ -13,8 +24,301 @@ public class CreateQuiz extends javax.swing.JPanel {
     /**
      * Creates new form CreateQuiz
      */
+
+    private Instructor instructor;
+    private InstructorService instructorService;
+    private CourseDatabase courseDatabase;
+    private Course selectedCourse;
+    private Lesson selectedLesson;
+    private ArrayList<Question> questionsList;
+    private DefaultTableModel courseTableModel;
+    private DefaultTableModel lessonTableModel;
+    private DefaultTableModel questionTableModel;
+
     public CreateQuiz() {
         initComponents();
+    }
+
+    public CreateQuiz(Instructor instructor) {
+        this.instructor = instructor;
+        this.instructorService = new InstructorService(instructor);
+        this.courseDatabase = new CourseDatabase("courses.json");
+        this.questionsList = new ArrayList<>();
+        initComponents();
+        initializeTables();
+        loadInstructorCourses();
+    }
+
+    private void initializeTables() {
+        courseTableModel = new DefaultTableModel(
+                new Object[][]{},
+                new String[]{"courseId", "courseName", "Status"}
+        ) {
+            Class[] types = new Class[]{
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types[columnIndex];
+            }
+        };
+        courseTable.setModel(courseTableModel);
+
+        lessonTableModel = new DefaultTableModel(
+                new Object[][]{},
+                new String[]{"lessonId", "lessonName"}
+        );
+        lessonTable.setModel(lessonTableModel);
+
+        questionTableModel = new DefaultTableModel(
+                new Object[][]{},
+                new String[]{"questionId", "question", "Choices", "CorrectAnswer"}
+        );
+        questionTable.setModel(questionTableModel);
+    }
+
+    private void loadInstructorCourses() {
+        courseTableModel.setRowCount(0);
+        ArrayList<Integer> courseIds = instructor.getCreatedCourseIds();
+
+        for (Integer courseId : courseIds) {
+            Course course = courseDatabase.getCourseById(courseId);
+            if (course != null && course.getApprovalStatus().toString().equals("APPROVED")) {
+                courseTableModel.addRow(new Object[]{
+                    course.getCourseId(),
+                    course.getTitle(),
+                    course.getApprovalStatus().toString()
+                });
+            }
+        }
+    }
+
+    private void loadLessonsForCourse(int courseId) {
+        lessonTableModel.setRowCount(0);
+        questionTableModel.setRowCount(0);
+        questionsList.clear();
+        clearQuestionForm();
+
+        selectedCourse = courseDatabase.getCourseById(courseId);
+        if (selectedCourse != null) {
+            ArrayList<Lesson> lessons = selectedCourse.getLessons();
+            for (Lesson lesson : lessons) {
+                lessonTableModel.addRow(new Object[]{
+                    lesson.getLessonId(),
+                    lesson.getTitle()
+                });
+            }
+        }
+    }
+
+    private void loadQuestionsForLesson(int lessonId) {
+        questionTableModel.setRowCount(0);
+        questionsList.clear();
+        clearQuestionForm();
+
+        if (selectedCourse != null) {
+            selectedLesson = selectedCourse.getLessonById(lessonId);
+            if (selectedLesson != null && selectedLesson.hasQuiz()) {
+                Quiz quiz = selectedLesson.getQuiz();
+                if (quiz != null) {
+                    ArrayList<Question> questions = quiz.getQuestions();
+                    questionsList.addAll(questions);
+
+                    for (Question question : questions) {
+                        String choices = formatChoices(question.getChoices());
+                        String correctAnswer = getChoiceLetter(question.getCorrectChoice());
+                        questionTableModel.addRow(new Object[]{
+                            question.getQuestionId(),
+                            question.getText(),
+                            choices,
+                            correctAnswer
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    private String formatChoices(ArrayList<String> choices) {
+        StringBuilder sb = new StringBuilder();
+        char letter = 'A';
+        for (String choice : choices) {
+            sb.append(letter).append(") ").append(choice).append("  ");
+            letter++;
+        }
+        return sb.toString();
+    }
+
+    private String getChoiceLetter(int choiceIndex) {
+        return String.valueOf((char) ('A' + choiceIndex));
+    }
+
+    private int getChoiceIndex(char choiceLetter) {
+        return choiceLetter - 'A';
+    }
+
+    private void clearQuestionForm() {
+        tfQuestionId.setText("");
+        tfQuestion.setText("");
+        tfChoiceA.setText("");
+        tfChoiceB.setText("");
+        tfChoiceC.setText("");
+        tfChoiceD.setText("");
+        checkboxA.setState(false);
+        checkbox1.setState(false);
+        checkboxC.setState(false);
+        checkboxD.setState(false);
+    }
+
+    private void addQuestion() {
+        try {
+            if (tfQuestionId.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please enter Question ID", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (tfQuestion.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please enter Question text", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (tfChoiceA.getText().trim().isEmpty() || tfChoiceB.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "At least choices A and B are required", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            int correctChoice = -1;
+            if (checkboxA.getState()) {
+                correctChoice = 0;
+            } else if (checkbox1.getState()) {
+                correctChoice = 1;
+            } else if (checkboxC.getState()) {
+                correctChoice = 2;
+            } else if (checkboxD.getState()) {
+                correctChoice = 3;
+            }
+
+            if (correctChoice == -1) {
+                JOptionPane.showMessageDialog(this, "Please select the correct answer", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (!tfChoiceC.getText().trim().isEmpty() && correctChoice == 2) {
+            } else if (!tfChoiceD.getText().trim().isEmpty() && correctChoice == 3) {
+            } else if (correctChoice >= 2) {
+                if ((correctChoice == 2 && tfChoiceC.getText().trim().isEmpty())
+                        || (correctChoice == 3 && tfChoiceD.getText().trim().isEmpty())) {
+                    JOptionPane.showMessageDialog(this, "Selected correct answer choice cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+
+            int questionId = Integer.parseInt(tfQuestionId.getText().trim());
+
+            for (Question q : questionsList) {
+                if (q.getQuestionId() == questionId) {
+                    JOptionPane.showMessageDialog(this, "Question ID already exists", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+
+            ArrayList<String> choices = new ArrayList<>();
+            choices.add(tfChoiceA.getText().trim());
+            choices.add(tfChoiceB.getText().trim());
+            if (!tfChoiceC.getText().trim().isEmpty()) {
+                choices.add(tfChoiceC.getText().trim());
+            }
+            if (!tfChoiceD.getText().trim().isEmpty()) {
+                choices.add(tfChoiceD.getText().trim());
+            }
+
+            if (correctChoice >= choices.size()) {
+                JOptionPane.showMessageDialog(this, "Correct choice is out of range", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Question newQuestion = new Question(questionId, tfQuestion.getText().trim(), choices, correctChoice);
+            questionsList.add(newQuestion);
+
+            String choicesText = formatChoices(choices);
+            String correctAnswerText = getChoiceLetter(correctChoice);
+            questionTableModel.addRow(new Object[]{
+                questionId,
+                tfQuestion.getText().trim(),
+                choicesText,
+                correctAnswerText
+            });
+
+            clearQuestionForm();
+            JOptionPane.showMessageDialog(this, "Question added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Question ID must be a valid number", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void removeQuestion() {
+        int selectedRow = questionTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a question to remove", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int questionId = (Integer) questionTableModel.getValueAt(selectedRow, 0);
+
+        for (int i = 0; i < questionsList.size(); i++) {
+            if (questionsList.get(i).getQuestionId() == questionId) {
+                questionsList.remove(i);
+                break;
+            }
+        }
+
+        questionTableModel.removeRow(selectedRow);
+        JOptionPane.showMessageDialog(this, "Question removed successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void saveQuiz() {
+        if (selectedLesson == null) {
+            JOptionPane.showMessageDialog(this, "Please select a lesson first", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (questionsList.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please add at least one question to the quiz", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int quizId = selectedLesson.getLessonId();
+
+            boolean success;
+            if (selectedLesson.hasQuiz()) {
+                success = instructorService.updateQuiz(
+                        selectedCourse.getCourseId(),
+                        selectedLesson.getLessonId(),
+                        quizId,
+                        questionsList
+                );
+            } else {
+                success = instructorService.addQuizToLesson(
+                        selectedCourse.getCourseId(),
+                        selectedLesson.getLessonId(),
+                        quizId,
+                        questionsList
+                );
+            }
+
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Quiz saved successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to save quiz", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error saving quiz: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /**
@@ -59,9 +363,9 @@ public class CreateQuiz extends javax.swing.JPanel {
         jScrollPane3 = new javax.swing.JScrollPane();
         questionTable = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
         label1 = new java.awt.Label();
         btnRemoveQuestion = new javax.swing.JButton();
+        btnSaveQuiz = new javax.swing.JToggleButton();
 
         jLabel3.setFont(new java.awt.Font("Liberation Sans", 0, 18)); // NOI18N
         jLabel3.setText("Select Lesson:");
@@ -331,13 +635,14 @@ public class CreateQuiz extends javax.swing.JPanel {
         jLabel1.setText("Make Quiz");
         jLabel1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
-        jLabel11.setText("Correct Answer:");
-
         label1.setForeground(new java.awt.Color(255, 0, 0));
         label1.setText("To remove Question, Select Question and press remove question button:");
 
         btnRemoveQuestion.setText("remove question");
         btnRemoveQuestion.addActionListener(this::btnRemoveQuestionActionPerformed);
+
+        btnSaveQuiz.setText("Save Quiz");
+        btnSaveQuiz.addActionListener(this::btnSaveQuizActionPerformed);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -363,17 +668,18 @@ public class CreateQuiz extends javax.swing.JPanel {
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 616, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(111, 111, 111)
+                                .addComponent(btnRemoveQuestion, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(111, 111, 111)
-                        .addComponent(btnRemoveQuestion, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(0, 0, Short.MAX_VALUE))
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel1Layout.createSequentialGroup()
-                    .addGap(797, 797, 797)
-                    .addComponent(jLabel11)
-                    .addContainerGap(798, Short.MAX_VALUE)))
+                        .addGap(231, 231, 231)
+                        .addComponent(btnSaveQuiz, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -392,21 +698,16 @@ public class CreateQuiz extends javax.swing.JPanel {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 329, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 329, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(101, 101, 101)
                         .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnRemoveQuestion, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(btnRemoveQuestion, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(77, 77, 77)
+                        .addComponent(btnSaveQuiz, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(12, Short.MAX_VALUE))
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel1Layout.createSequentialGroup()
-                    .addGap(406, 406, 406)
-                    .addComponent(jLabel11)
-                    .addContainerGap(407, Short.MAX_VALUE)))
         );
 
         jLayeredPane1.setLayer(jPanel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -450,8 +751,7 @@ public class CreateQuiz extends javax.swing.JPanel {
     }//GEN-LAST:event_tfQuestionActionPerformed
 
     private void btnAddQuestionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddQuestionActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnAddQuestionActionPerformed
+        addQuestion();    }//GEN-LAST:event_btnAddQuestionActionPerformed
 
     private void tfQuestionIdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfQuestionIdActionPerformed
         // TODO add your handling code here:
@@ -474,13 +774,64 @@ public class CreateQuiz extends javax.swing.JPanel {
     }//GEN-LAST:event_tfChoiceDActionPerformed
 
     private void btnRemoveQuestionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveQuestionActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnRemoveQuestionActionPerformed
+        removeQuestion();    }//GEN-LAST:event_btnRemoveQuestionActionPerformed
+
+    private void btnSaveQuizActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveQuizActionPerformed
+        saveQuiz();    }//GEN-LAST:event_btnSaveQuizActionPerformed
+
+    private void courseTableMouseClicked(java.awt.event.MouseEvent evt) {
+        int selectedRow = courseTable.getSelectedRow();
+        if (selectedRow != -1) {
+            int courseId = (Integer) courseTableModel.getValueAt(selectedRow, 0);
+            loadLessonsForCourse(courseId);
+        }
+    }
+
+    private void lessonTableMouseClicked(java.awt.event.MouseEvent evt) {
+        int selectedRow = lessonTable.getSelectedRow();
+        if (selectedRow != -1) {
+            int lessonId = (Integer) lessonTableModel.getValueAt(selectedRow, 0);
+            loadQuestionsForLesson(lessonId);
+        }
+    }
+
+    private void checkboxAItemStateChanged(java.awt.event.ItemEvent evt) {
+        if (checkboxA.getState()) {
+            checkbox1.setState(false);
+            checkboxC.setState(false);
+            checkboxD.setState(false);
+        }
+    }
+
+    private void checkbox1ItemStateChanged(java.awt.event.ItemEvent evt) {
+        if (checkbox1.getState()) {
+            checkboxA.setState(false);
+            checkboxC.setState(false);
+            checkboxD.setState(false);
+        }
+    }
+
+    private void checkboxCItemStateChanged(java.awt.event.ItemEvent evt) {
+        if (checkboxC.getState()) {
+            checkboxA.setState(false);
+            checkbox1.setState(false);
+            checkboxD.setState(false);
+        }
+    }
+
+    private void checkboxDItemStateChanged(java.awt.event.ItemEvent evt) {
+        if (checkboxD.getState()) {
+            checkboxA.setState(false);
+            checkbox1.setState(false);
+            checkboxC.setState(false);
+        }
+    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddQuestion;
     private javax.swing.JButton btnRemoveQuestion;
+    private javax.swing.JToggleButton btnSaveQuiz;
     private java.awt.Checkbox checkbox1;
     private java.awt.Checkbox checkboxA;
     private java.awt.Checkbox checkboxC;
@@ -489,7 +840,6 @@ public class CreateQuiz extends javax.swing.JPanel {
     private javax.swing.JDesktopPane jDesktopPane1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

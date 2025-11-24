@@ -37,7 +37,7 @@ public class InstructorDashboard extends javax.swing.JPanel {
         btnManageCourses = new javax.swing.JButton();
         btnManageLessons = new javax.swing.JButton();
         btnback = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
+        btnCreateQuiz = new javax.swing.JButton();
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -70,7 +70,12 @@ public class InstructorDashboard extends javax.swing.JPanel {
             }
         });
 
-        jButton1.setText("Create Quiz");
+        btnCreateQuiz.setText("Create Quiz");
+        btnCreateQuiz.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCreateQuizActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -84,9 +89,9 @@ public class InstructorDashboard extends javax.swing.JPanel {
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(6, 6, 6)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(btnback, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(btnCreateQuiz, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnManageLessons, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(15, Short.MAX_VALUE))
@@ -107,7 +112,7 @@ public class InstructorDashboard extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(btnback, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnCreateQuiz, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(21, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -147,12 +152,23 @@ public class InstructorDashboard extends javax.swing.JPanel {
     homeFrame.setLocationRelativeTo(null);
     homeFrame.setVisible(true);    }//GEN-LAST:event_btnbackActionPerformed
 
+    private void btnCreateQuizActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreateQuizActionPerformed
+    JFrame parentFrame = (JFrame) javax.swing.SwingUtilities.getWindowAncestor(this);
+    parentFrame.dispose();
+
+    JFrame dash = new JFrame("Create Quiz");
+    dash.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    dash.getContentPane().add(new CreateQuiz(instructor));
+    dash.pack();
+    dash.setLocationRelativeTo(null);
+    dash.setVisible(true);    }//GEN-LAST:event_btnCreateQuizActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnCreateQuiz;
     private javax.swing.JButton btnManageCourses;
     private javax.swing.JButton btnManageLessons;
     private javax.swing.JButton btnback;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     // End of variables declaration//GEN-END:variables
 }
