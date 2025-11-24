@@ -158,18 +158,20 @@ public class CreateQuiz extends javax.swing.JPanel {
     }
 
     private void refreshCurrentLesson() {
-        if (selectedCourse != null && selectedLesson != null) {
-            Course refreshedCourse = courseDatabase.getCourseById(selectedCourse.getCourseId());
-            if (refreshedCourse != null) {
-                selectedCourse = refreshedCourse;
-                Lesson refreshedLesson = selectedCourse.getLessonById(selectedLesson.getLessonId());
-                if (refreshedLesson != null) {
-                    selectedLesson = refreshedLesson;
-                    loadQuestionsForLesson(selectedLesson.getLessonId());
-                }
+    if (selectedCourse != null && selectedLesson != null) {
+        courseDatabase = new CourseDatabase("courses.json");
+        
+        Course refreshedCourse = courseDatabase.getCourseById(selectedCourse.getCourseId());
+        if (refreshedCourse != null) {
+            selectedCourse = refreshedCourse;
+            Lesson refreshedLesson = selectedCourse.getLessonById(selectedLesson.getLessonId());
+            if (refreshedLesson != null) {
+                selectedLesson = refreshedLesson;
+                loadQuestionsForLesson(selectedLesson.getLessonId());
             }
         }
     }
+}
 
     private String formatChoices(ArrayList<String> choices) {
         StringBuilder sb = new StringBuilder();
@@ -331,6 +333,7 @@ public class CreateQuiz extends javax.swing.JPanel {
                         quizId,
                         questionsList
                 );
+                System.out.println("in update");
             } else {
                 success = instructorService.addQuizToLesson(
                         selectedCourse.getCourseId(),
@@ -338,6 +341,7 @@ public class CreateQuiz extends javax.swing.JPanel {
                         quizId,
                         questionsList
                 );
+                System.out.println("in add");
             }
 
             if (success) {

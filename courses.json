@@ -33,6 +33,39 @@
                                 "csdc",
                                 "csdc"
                             ]
+                        },
+                        {
+                            "questionId": 18,
+                            "text": "skndlsd",
+                            "correctChoice": 1,
+                            "choices": [
+                                "sdkl;",
+                                "sdl;/",
+                                "sdmk;l",
+                                "s,d."
+                            ]
+                        },
+                        {
+                            "questionId": 98,
+                            "text": "skdlm;,",
+                            "correctChoice": 0,
+                            "choices": [
+                                "sk;dl",
+                                "smk;dl",
+                                "sndkl;",
+                                "sndkl"
+                            ]
+                        },
+                        {
+                            "questionId": 101,
+                            "text": "ndskodslk",
+                            "correctChoice": 0,
+                            "choices": [
+                                "sijdkol",
+                                "bsdijk",
+                                "sidjokl",
+                                "snidk"
+                            ]
                         }
                     ],
                     "passingScore": 50
@@ -46,17 +79,41 @@
             {
                 "quiz": {
                     "quizId": 3,
-                    "questions": [{
-                        "questionId": 2,
-                        "text": "sax",
-                        "correctChoice": 2,
-                        "choices": [
-                            "sax",
-                            "xsa",
-                            "xas",
-                            "xsa"
-                        ]
-                    }],
+                    "questions": [
+                        {
+                            "questionId": 2,
+                            "text": "sax",
+                            "correctChoice": 2,
+                            "choices": [
+                                "sax",
+                                "xsa",
+                                "xas",
+                                "xsa"
+                            ]
+                        },
+                        {
+                            "questionId": 4,
+                            "text": "kdsm",
+                            "correctChoice": 1,
+                            "choices": [
+                                "ksmld",
+                                "ksldm",
+                                "sjkml",
+                                "skdl"
+                            ]
+                        },
+                        {
+                            "questionId": 120,
+                            "text": "kms;dl,;",
+                            "correctChoice": 0,
+                            "choices": [
+                                "snlmd ,.",
+                                "nskld",
+                                "nsm, d",
+                                "sm dnsl"
+                            ]
+                        }
+                    ],
                     "passingScore": 50
                 },
                 "hasQuiz": true,
