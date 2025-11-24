@@ -28,6 +28,10 @@ public class StudentService {
         return courses.getAllCourses();
     }
 
+    public ArrayList<Course> gerApprovedCourses(){
+        return courses.getApprovedCourses();
+    }
+    
     public boolean enrollInCourse(int courseId) {
         boolean enrollStatus = courses.enrollStudent(courseId, student.getUserId());
         if (enrollStatus) {

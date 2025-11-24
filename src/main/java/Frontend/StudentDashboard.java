@@ -309,7 +309,7 @@ public class StudentDashboard extends javax.swing.JPanel {
 
     private void loadAvailableCourses() {
         availableModel.setRowCount(0);
-        ArrayList<Course> allCourses = studentService.getAllCourses();
+        ArrayList<Course> allCourses = studentService.gerApprovedCourses();
         if (allCourses != null) {
             for (int i = 0; i < allCourses.size(); i++) {
                 Course course = allCourses.get(i);
