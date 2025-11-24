@@ -476,7 +476,7 @@ public ManageLessons(Instructor instructor) {
         }
 
        // boolean added = instructorService.addLesson(selectedCourse, id, title, content, resources, quiz);
-       boolean added = instructorService.addLesson(selectedCourse, id, title, content, resources, null);
+       boolean added = instructorService.addLesson(selectedCourse, id, title, content, resources);
        if (added) {
             JOptionPane.showMessageDialog(this, "Lesson added successfully!");
             loadLessons(selectedCourse);
@@ -609,7 +609,7 @@ private void loadCourses() {
         for (int i = 0; i < courseIds.size(); i++) {
             Course c = instructorService.getCourseById(courseIds.get(i));
             if (c != null) {
-                model.addRow(new Object[]{c.getCourseId(), c.getTitle(), c.getDescription(), c.getInstructorId()});
+                model.addRow(new Object[]{c.getCourseId(), c.getTitle(), c.getDescription(), c.getInstructorId(), c.getApprovalStatus()});
             }
         }
     }

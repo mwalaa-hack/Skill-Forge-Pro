@@ -7,6 +7,7 @@ package Frontend;
 import Backend.Models.Instructor;
 
 import Backend.Models.Course;
+import Backend.Models.Lesson;
 import Backend.Models.Student;
 import Backend.Services.AnalyticsService;
 import Backend.Services.InstructorService;
@@ -81,6 +82,7 @@ public class ManageCourse extends javax.swing.JPanel {
         jLabel11 = new javax.swing.JLabel();
         btnback = new javax.swing.JButton();
         btnShowStudentProgress = new javax.swing.JButton();
+        courseInsightsButton = new javax.swing.JButton();
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -109,18 +111,18 @@ public class ManageCourse extends javax.swing.JPanel {
 
         courseTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "courseId", "title", "description", "instructorId"
+                "courseId", "title", "description", "instructorId", "Approval Status"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -236,6 +238,14 @@ public class ManageCourse extends javax.swing.JPanel {
             }
         });
 
+        courseInsightsButton.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        courseInsightsButton.setText("Course Insights");
+        courseInsightsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                courseInsightsButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -247,43 +257,39 @@ public class ManageCourse extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addGap(444, 444, 444)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 241, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addGap(6, 6, 6)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addGap(6, 6, 6)
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addContainerGap()
+                                                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                .addComponent(tfCourseId)
+                                                .addComponent(tfTitle, javax.swing.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE))
+                                            .addComponent(tfDescription, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(188, 188, 188)
+                                        .addComponent(btnDelete))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(87, 87, 87)
+                                        .addComponent(btnAdd))
                                     .addGroup(layout.createSequentialGroup()
                                         .addContainerGap()
-                                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addComponent(jLabel2)))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(tfCourseId)
-                                        .addComponent(tfTitle, javax.swing.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE))
-                                    .addComponent(tfDescription, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(188, 188, 188)
-                                .addComponent(btnDelete))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(87, 87, 87)
-                                .addComponent(btnAdd))
-                            .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(jLabel2)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 394, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(96, 96, 96)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(btnback, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(99, 99, 99))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGap(18, 18, 18)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -298,19 +304,24 @@ public class ManageCourse extends javax.swing.JPanel {
                                                     .addComponent(tfuCourseId, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                             .addGroup(layout.createSequentialGroup()
                                                 .addGap(18, 18, 18)
-                                                .addComponent(tfuDescription, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                        .addGap(70, 70, 70))
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addComponent(tfuDescription, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addComponent(btnback, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                        .addGap(58, 58, 58))
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                         .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 308, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))))
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 348, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(444, 444, 444)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 241, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(360, 360, 360)
-                        .addComponent(btnShowStudentProgress, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(22, Short.MAX_VALUE))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(360, 360, 360)
+                                .addComponent(btnShowStudentProgress, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(388, 388, 388)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 348, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(courseInsightsButton, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(74, 74, 74)))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -360,12 +371,16 @@ public class ManageCourse extends javax.swing.JPanel {
                                         .addComponent(jLabel10))
                                     .addGap(18, 18, 18)
                                     .addComponent(btnUpdate)
-                                    .addGap(170, 170, 170)
-                                    .addComponent(btnback, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(18, 18, 18)
-                .addComponent(btnShowStudentProgress, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(26, Short.MAX_VALUE))
+                                    .addGap(206, 206, 206)))
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(btnback, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnShowStudentProgress, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(courseInsightsButton, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(32, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -409,11 +424,12 @@ public class ManageCourse extends javax.swing.JPanel {
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void addCourseToTable(Course c) {
-        Object[] row = new Object[4];
+        Object[] row = new Object[5];
         row[0] = c.getCourseId();
         row[1] = c.getTitle();
         row[2] = c.getDescription();
         row[3] = c.getInstructorId();
+        row[4] = c.getApprovalStatus();
         coursesModel.addRow(row);
     }
 
@@ -585,6 +601,34 @@ public class ManageCourse extends javax.swing.JPanel {
    chartFrame.setVisible(true);
     }//GEN-LAST:event_btnShowStudentProgressActionPerformed
 
+    private void courseInsightsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_courseInsightsButtonActionPerformed
+        if(selectedCourse==null){
+           JOptionPane.showMessageDialog(this,"Please select a course first");
+    return;
+       }
+        DefaultCategoryDataset lessonDataset = new DefaultCategoryDataset();
+        ArrayList<Lesson> lessons = selectedCourse.getLessons();
+        AnalyticsService analyticsService=new AnalyticsService(selectedCourse);
+         if (lessons != null) {
+        for (int i = 0; i < lessons.size(); i++) {
+            // Calculate average for this specific lesson using the service
+            double avg = analyticsService.getLessonAverage(lessons.get(i).getLessonId());
+            lessonDataset.addValue(avg, "Class Average", lessons.get(i).getTitle());
+        }
+}
+ JFreeChart lessonChart = ChartFactory.createBarChart(
+            "Quiz Averages per Lesson", "Lesson", "Average Score", 
+            lessonDataset, PlotOrientation.VERTICAL, true, true, false
+    );
+    ChartPanel lessonPanel = new ChartPanel(lessonChart);
+    JFrame chartFrame = new JFrame("Lessons Average Scores");
+   chartFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+   chartFrame.getContentPane().add(lessonPanel);
+   chartFrame.setSize(900,600);
+   chartFrame.setLocationRelativeTo(null);
+   chartFrame.setVisible(true);
+    }//GEN-LAST:event_courseInsightsButtonActionPerformed
+
     private void loadStudentsToTable(Course c) {
         studentsModel.setRowCount(0);
         ArrayList<Integer> studentsIds = instructorService.getEnrolledStudentsIds(c);
@@ -614,7 +658,7 @@ public class ManageCourse extends javax.swing.JPanel {
                 int row = courseTable.getSelectedRow();
                 if (row >= 0) {
                     int courseId = (int) courseTable.getValueAt(row, 0);
-                    Course selectedCourse = instructorService.getCourseById(courseId);
+                    selectedCourse = instructorService.getCourseById(courseId);
                     loadStudentsToTable(selectedCourse);
                 }
             }
@@ -645,6 +689,7 @@ public class ManageCourse extends javax.swing.JPanel {
     private javax.swing.JButton btnShowStudentProgress;
     private javax.swing.JButton btnUpdate;
     private javax.swing.JButton btnback;
+    private javax.swing.JButton courseInsightsButton;
     private javax.swing.JTable courseTable;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;

@@ -75,6 +75,11 @@ public class InstructorService {
         return courses.addLesson(c.getCourseId(), newLesson);
     }
 
+    public boolean addLesson(Course c, int lessonId, String title, String content, ArrayList<String> optionalResources) {
+        Lesson newLesson = new Lesson(lessonId, title, content, optionalResources);
+        return courses.addLesson(c.getCourseId(), newLesson);
+    }
+    
     public boolean updateLesson(int courseId, int oldLessonId, int newLessonId, String title, String content, ArrayList<String> resources) {
         Course course = courses.getCourseById(courseId);
         if (course == null) {
