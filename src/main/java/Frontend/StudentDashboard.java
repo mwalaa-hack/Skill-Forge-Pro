@@ -355,6 +355,7 @@ public class StudentDashboard extends javax.swing.JPanel {
                 lessonsModel.addRow(new Object[]{
                     lesson.getLessonId(),
                     lesson.getTitle(),
+                    lesson.getContent(),
                     completed ? "Yes" : "No"
                 });
             }
@@ -430,7 +431,7 @@ public class StudentDashboard extends javax.swing.JPanel {
 
     JFrame currentFrame = (JFrame) javax.swing.SwingUtilities.getWindowAncestor(this);
     currentFrame.getContentPane().removeAll();
-    currentFrame.getContentPane().add(new QuizPanel(studentService.getStudent(),courseId, lessonId, this)); //pola change name and pass what Quiz panel needs
+    currentFrame.getContentPane().add(new QuizPanel(studentService.getStudent(),courseId, lessonId, this));
     currentFrame.revalidate();
     currentFrame.repaint();
     }//GEN-LAST:event_getQuizButtonActionPerformed
@@ -444,7 +445,7 @@ public class StudentDashboard extends javax.swing.JPanel {
     }
 
     String certId = (String) certificatesTable.getValueAt(selectedRow, 0);
-    Certificate cert = studentService.getCertificateById(certId); //method to be done by obra///////////------------------
+    Certificate cert = studentService.getCertificateById(certId);
 
     JFrame currentFrame = (JFrame) javax.swing.SwingUtilities.getWindowAncestor(this);
     currentFrame.getContentPane().removeAll();
